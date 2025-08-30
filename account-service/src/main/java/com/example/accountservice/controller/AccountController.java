@@ -1,7 +1,9 @@
 package com.example.accountservice.controller;
 
 import com.example.accountservice.dto.AccountDto;
+import com.example.accountservice.dto.LedgerDto;
 import com.example.accountservice.entity.Account;
+import com.example.accountservice.entity.Ledger;
 import com.example.accountservice.entity.Transaction;
 import com.example.accountservice.service.AccountService;
 import com.example.accountservice.service.TransactionService;
@@ -40,11 +42,13 @@ public class AccountController {
                 .orElse(ResponseEntity.notFound().build());
     }
 
-    @GetMapping("/{accountNumber}/transactions")
-    public List<Transaction> getTransactions(@PathVariable String accountNumber) {
-        return accountService.getTransactionsForAccount(accountNumber);
+    //getting transactions of a account
+    @GetMapping("/{accountId}/transactions")
+    public List<LedgerDto> getAccountTransactions(@PathVariable Long accountId) {
+        return accountService.getTransactionsForAccount(accountId);
     }
 
+    //getting account details of user
     @GetMapping("/user/{userId}")
     public ResponseEntity<List<Account>> getAccountsByUserId(@PathVariable Long userId) {
         return ResponseEntity.ok(accountService.getAccountsByUserId(userId));

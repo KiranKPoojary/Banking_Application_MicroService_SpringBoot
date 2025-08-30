@@ -2,6 +2,7 @@ package com.example.userservice.service.implement;
 
 import com.example.userservice.client.AccountClient;
 import com.example.userservice.dto.AccountDto;
+import com.example.userservice.dto.TransactionDto;
 import com.example.userservice.dto.UserRegisteredEvent;
 import com.example.userservice.dto.UserSignupDto;
 import com.example.userservice.entity.AccessLog;
@@ -149,8 +150,17 @@ public class UserServiceImpl implements UserService {
     //getting all user accounts
     @Override
     public List<AccountDto> getUserAccounts(Long userId) {
-        return accountClient.getAccountsByUserId(userId);
+
+       return accountClient.getAccountsByUserId(userId);
     }
+
+
+    //Getting transactions for a specific account
+    @Override
+    public List<TransactionDto> getUserTransactions(Long userId, Long accountId) {
+       return accountClient.getAccountTransactions(accountId);
+    }
+
     @Override
     public User updateUser(Long id, User userDetails) {
         return userRepository.findById(id).map(user -> {

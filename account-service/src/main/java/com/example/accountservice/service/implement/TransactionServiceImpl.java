@@ -1,14 +1,16 @@
 package com.example.accountservice.service.implement;
 
 import com.example.accountservice.dto.DepositRequest;
+import com.example.accountservice.dto.LedgerDto;
 import com.example.accountservice.dto.TransferRequest;
 import com.example.accountservice.dto.WithdrawRequest;
 import com.example.accountservice.entity.Account;
+import com.example.accountservice.entity.Ledger;
 import com.example.accountservice.entity.Transaction;
-import com.example.accountservice.entity.enums.AccountType;
 import com.example.accountservice.entity.enums.TransactionStatus;
 import com.example.accountservice.entity.enums.TransactionType;
 import com.example.accountservice.repository.AccountRepository;
+import com.example.accountservice.repository.LedgerRepository;
 import com.example.accountservice.repository.TransactionRepository;
 import com.example.accountservice.service.TransactionService;
 import jakarta.persistence.OptimisticLockException;
@@ -28,6 +30,14 @@ public class TransactionServiceImpl implements TransactionService {
 
     private final TransactionRepository txRepo;
     private final AccountRepository accountRepo;
+    private final LedgerRepository ledgerRepo;
+
+    private static final String BANK_CASH_ACCOUNT_NO = "BANK_CASH";
+
+    private Account getBankCashAccount() {
+        return accountRepo.findByAccountNumber(BANK_CASH_ACCOUNT_NO)
+                .orElseThrow(() -> new IllegalStateException("Bank cash account missing"));
+    }
 
     @Override
     @Transactional
@@ -43,14 +53,22 @@ public class TransactionServiceImpl implements TransactionService {
                 Account acc = accountRepo.findByAccountNumber(req.getAccountNumber())
                         .orElseThrow(() -> new IllegalArgumentException("Account not found"));
 
+                Account BANK_CASH_VAULT = getBankCashAccount();
+
                 // update balance
                 acc.setBalance(acc.getBalance().add(req.getAmount()));
                 accountRepo.saveAndFlush(acc); // triggers @Version check
 
+                //update bank_cash_vault
+                BANK_CASH_VAULT.setBalance(BANK_CASH_VAULT.getBalance().add(req.getAmount()));
+                accountRepo.saveAndFlush(BANK_CASH_VAULT);
+
+
+                //transaction entry
                 Transaction tx = Transaction.builder()
                         .toaccount(acc)
                         .transactionId(UUID.randomUUID().toString())
-                        .type(TransactionType.CREDIT)
+                        .type(TransactionType.DEPOSIT)
                         .amount(req.getAmount())
                         .status(TransactionStatus.SUCCESS)
                         .referenceNumber(null)
@@ -62,7 +80,36 @@ public class TransactionServiceImpl implements TransactionService {
                         .idempotencyKey(req.getIdempotencyKey())
                         .build();
 
-                return txRepo.save(tx);
+                Transaction savedTx = txRepo.saveAndFlush(tx);
+
+                // create ledger entries (double-entry)
+                //CREDIT ENTRY
+                Ledger creditEntry = Ledger.builder()
+                        .transaction(savedTx)
+                        .account(acc)
+                        .idempotencyKey(req.getIdempotencyKey())
+                        .entryType(TransactionType.CREDIT)
+                        .description(req.getDescription())
+                        .amount(req.getAmount())
+                        .entryDate(LocalDateTime.now())
+                        .build();
+
+                //DEBIT ENTRY
+                Ledger debitEntry = Ledger.builder()
+                        .transaction(savedTx)
+                        .account(BANK_CASH_VAULT) // pseudo account representing the bank
+                        .entryType(TransactionType.DEBIT)
+                        .description(req.getDescription())
+                        .idempotencyKey(req.getIdempotencyKey())
+                        .amount(req.getAmount())
+                        .entryDate(LocalDateTime.now())
+                        .build();
+
+            savedTx.getLedgerEntries().add(debitEntry);
+            savedTx.getLedgerEntries().add(creditEntry);
+//                ledgerRepo.saveAll(Arrays.asList(creditEntry, debitEntry));
+
+                return savedTx;
 
             } catch (OptimisticLockException e) {
                 if (++attempts >= MAX_RETRIES) throw e;
@@ -91,15 +138,22 @@ public class TransactionServiceImpl implements TransactionService {
                     throw new IllegalStateException("Insufficient balance");
                 }
 
+                Account BANK_CASH_VAULT = getBankCashAccount();
+
+                //update user account
                 acc.setBalance(acc.getBalance().subtract(req.getAmount()));
                 accountRepo.saveAndFlush(acc);
+
+                //update bank_cash_vault
+                BANK_CASH_VAULT.setBalance(BANK_CASH_VAULT.getBalance().subtract(req.getAmount()));
+                accountRepo.saveAndFlush(BANK_CASH_VAULT);
 
                 Transaction tx = Transaction.builder()
                         .fromaccount(acc)
                         .toaccount(null)
                         .transactionSource(req.getTransactionSource())
                         .transactionId(UUID.randomUUID().toString())
-                        .type(TransactionType.DEBIT)
+                        .type(TransactionType.WITHDRAWAL)
                         .amount(req.getAmount())
                         .status(TransactionStatus.SUCCESS)
                         .description(req.getDescription())
@@ -108,7 +162,35 @@ public class TransactionServiceImpl implements TransactionService {
                         .idempotencyKey(req.getIdempotencyKey())
                         .build();
 
-                return txRepo.save(tx);
+                Transaction savedTx = txRepo.saveAndFlush(tx);
+
+                // create ledger entries (double-entry)
+                // Debit entry
+                Ledger debitEntry = Ledger.builder()
+                        .transaction(savedTx)
+                        .account(acc) // pseudo account representing the bank
+                        .entryType(TransactionType.DEBIT)
+                        .idempotencyKey(req.getIdempotencyKey())
+                        .description(req.getDescription())
+                        .amount(req.getAmount())
+                        .entryDate(LocalDateTime.now())
+                        .build();
+
+                //Credit Entry
+                Ledger creditEntry = Ledger.builder()
+                        .transaction(savedTx)
+                        .account(BANK_CASH_VAULT)
+                        .entryType(TransactionType.CREDIT)
+                        .idempotencyKey(req.getIdempotencyKey())
+                        .description(req.getDescription())
+                        .amount(req.getAmount())
+                        .entryDate(LocalDateTime.now())
+                        .build();
+
+                savedTx.getLedgerEntries().add(debitEntry);
+                savedTx.getLedgerEntries().add(creditEntry);
+
+                return savedTx;
 
             } catch (OptimisticLockException e) {
                 if (++attempts >= MAX_RETRIES) throw e;
@@ -134,6 +216,10 @@ public class TransactionServiceImpl implements TransactionService {
                 Account to = accountRepo.findByAccountNumber(req.getToAccountNumber())
                         .orElseThrow(() -> new IllegalArgumentException("To account not found"));
 
+                if (from == null || to == null) {
+                    throw new IllegalArgumentException("Accounts cannot be null");
+                }
+
                 if (from.getId().equals(to.getId())) {
                     throw new IllegalArgumentException("Cannot transfer to same account");
                 }
@@ -150,13 +236,13 @@ public class TransactionServiceImpl implements TransactionService {
 
                 String commonTxnId = UUID.randomUUID().toString();
 
-                // OUT record
-                Transaction out = txRepo.save(Transaction.builder()
+                // OUT record-Transaction Record
+                Transaction TX = txRepo.save(Transaction.builder()
                         .fromaccount(from)
                         .toaccount(to)
                         .transactionSource(req.getTransactionSource())
                         .transactionId(commonTxnId)
-                        .type(TransactionType.DEBIT)
+                        .type(TransactionType.TRANSFER)
                         .amount(req.getAmount())
                         .status(TransactionStatus.SUCCESS)
                         .description(req.getDescription())
@@ -165,21 +251,48 @@ public class TransactionServiceImpl implements TransactionService {
                         .idempotencyKey(req.getIdempotencyKey())
                         .build());
 
-                // IN record
-                txRepo.save(Transaction.builder()
-                        .fromaccount(from)
-                        .toaccount(to)
-                        .transactionId(commonTxnId)
-                        .type(TransactionType.CREDIT)
-                        .amount(req.getAmount())
-                        .status(TransactionStatus.SUCCESS)
-                        .description(req.getDescription())
-                        .transactionDate(LocalDateTime.now())
-                        .createdBy(req.getCreatedBy())
-                        .idempotencyKey(req.getIdempotencyKey() + ":IN") // make unique as well
-                        .build());
+//                // IN record
+//                txRepo.save(Transaction.builder()
+//                        .fromaccount(from)
+//                        .toaccount(to)
+//                        .transactionId(commonTxnId)
+//                        .type(TransactionType.CREDIT)
+//                        .amount(req.getAmount())
+//                        .status(TransactionStatus.SUCCESS)
+//                        .description(req.getDescription())
+//                        .transactionDate(LocalDateTime.now())
+//                        .createdBy(req.getCreatedBy())
+//                        .idempotencyKey(req.getIdempotencyKey()) // make unique as well
+//                        .build());
 
-                return out;
+
+                // CREATE ledger entries (double-entry)
+                // Debit entry
+                Ledger debitEntry = Ledger.builder()
+                        .transaction(TX)
+                        .account(from)
+                        .entryType(TransactionType.DEBIT)
+                        .idempotencyKey(req.getIdempotencyKey())
+                        .description(req.getDescription())
+                        .amount(req.getAmount())
+                        .entryDate(LocalDateTime.now())
+                        .build();
+
+                //Credit Entry
+                Ledger creditEntry = Ledger.builder()
+                        .transaction(TX)
+                        .account(to)
+                        .entryType(TransactionType.CREDIT)
+                        .idempotencyKey(req.getIdempotencyKey())
+                        .description(req.getDescription())
+                        .amount(req.getAmount())
+                        .entryDate(LocalDateTime.now())
+                        .build();
+
+                TX.getLedgerEntries().add(debitEntry);
+                TX.getLedgerEntries().add(creditEntry);
+
+                return TX;
 
             } catch (OptimisticLockException e) {
                 if (++attempts >= MAX_RETRIES) throw e;
@@ -193,8 +306,12 @@ public class TransactionServiceImpl implements TransactionService {
 
     @Override
     @Transactional(readOnly = true)
-    public List<Transaction> listByAccount(Long fromaccount,Long toaccount, int page, int size) {
-        return txRepo.findByFromaccount_IdOrToaccount_IdOrderByTransactionDateDesc(fromaccount,toaccount);
+    public List<LedgerDto> listByAccount(Long accountId, int page, int size) {
+        return ledgerRepo.findByAccount_IdOrderByEntryDateDesc(accountId)
+                .stream()
+                .map(l -> new LedgerDto(l.getTransaction().getTransactionId(),l.getEntryType(),l.getAmount(),l.getDescription(), l.getEntryDate()))
+                .toList();
+
         // For real paging: txRepo.findByAccount_Id( accountId, PageRequest.of(page, size) )
     }
 }

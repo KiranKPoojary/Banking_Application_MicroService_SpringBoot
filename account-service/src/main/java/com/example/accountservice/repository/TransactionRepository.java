@@ -9,7 +9,6 @@ import java.util.Optional;
 
 @Repository
 public interface TransactionRepository extends JpaRepository<Transaction, Long> {
-    List<Transaction> findByFromaccount_IdOrToaccount_IdOrderByTransactionDateDesc(Long fromAccountId, Long toAccountId);
 
     Optional<Transaction> findByIdempotencyKey(String idempotencyKey);
     Optional<Transaction> findByTransactionId(String transactionId);

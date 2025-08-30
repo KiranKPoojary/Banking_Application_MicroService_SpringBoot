@@ -3,6 +3,7 @@ package com.example.userservice.controller;
 
 import com.example.userservice.dto.AccountDto;
 import com.example.userservice.dto.LoginRequestDto;
+import com.example.userservice.dto.TransactionDto;
 import com.example.userservice.dto.UserSignupDto;
 import com.example.userservice.entity.User;
 import com.example.userservice.entity.enums.UserStatus;
@@ -60,10 +61,16 @@ public class UserController {
         return ResponseEntity.ok(userService.getUserById(id));
     }
 
-    //get accounts of user from account service
+    //get all accounts of user from account service
     @GetMapping("/{id}/accounts")
     public ResponseEntity<List<AccountDto>> getUserAccounts(@PathVariable Long id) {
         return ResponseEntity.ok(userService.getUserAccounts(id));
+    }
+
+    //get account transactions from account service
+    @GetMapping("/{id}/{accountId}/transactions")
+    public ResponseEntity<List<TransactionDto>> getUserTransactions(@PathVariable Long id,@PathVariable Long accountId) {
+        return ResponseEntity.ok(userService.getUserTransactions(id,accountId));
     }
 
     // ✅ Update User

@@ -1,6 +1,7 @@
 package com.example.userservice.service;
 
 import com.example.userservice.dto.AccountDto;
+import com.example.userservice.dto.TransactionDto;
 import com.example.userservice.dto.UserSignupDto;
 import com.example.userservice.entity.User;
 import com.example.userservice.entity.enums.UserAction;
@@ -23,6 +24,9 @@ public interface UserService {
 
     //get accounts of user
     List<AccountDto> getUserAccounts(Long userId);
+
+    //get transactions of user accounts
+    List<TransactionDto> getUserTransactions(Long userId, Long accountId);
 
     // Real-time features
     Optional<User> getUserByUsername(String username);

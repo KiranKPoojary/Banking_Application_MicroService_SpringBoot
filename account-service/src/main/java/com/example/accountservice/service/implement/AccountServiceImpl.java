@@ -2,8 +2,10 @@ package com.example.accountservice.service.implement;
 
 import com.example.accountservice.client.UserClient;
 import com.example.accountservice.dto.AccountDto;
+import com.example.accountservice.dto.LedgerDto;
 import com.example.accountservice.dto.UserDto;
 import com.example.accountservice.entity.Account;
+import com.example.accountservice.entity.Ledger;
 import com.example.accountservice.entity.Transaction;
 import com.example.accountservice.entity.enums.AccountStatus;
 import com.example.accountservice.exception.ExternalServiceException;
@@ -80,11 +82,11 @@ public class AccountServiceImpl implements AccountService {
 
     //account transactions call transaction service
     @Override
-    public List<Transaction> getTransactionsForAccount(String accountNumber) {
-        Account acc = accountRepository.findByAccountNumber(accountNumber)
-                .orElseThrow(() -> new IllegalArgumentException("Account with this account number not found"+ accountNumber));
+    public List<LedgerDto> getTransactionsForAccount(Long accountId) {
+        Account acc = accountRepository.findById(accountId)
+                .orElseThrow(() -> new IllegalArgumentException("Account with this account number not found"+ accountId));
 
-        return transactionService.listByAccount(acc.getId(),acc.getId(),1,2);
+        return transactionService.listByAccount(acc.getId(),1,2);
 
     }
 

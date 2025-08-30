@@ -8,16 +8,25 @@ import lombok.*;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
-@Table(name = "transactions",
-        indexes = {
-                @Index(name = "idx_txn_account_date", columnList = "account_id, transaction_date"),
-                @Index(name = "idx_txn_ext_id", columnList = "idempotency_key")
-        },
+//@Table(name = "transactions",
+//        indexes = {
+////                @Index(name = "idx_txn_account_date", columnList = "account_id, transaction_date"),
+////                @Index(name = "idx_txn_ext_id", columnList = "idempotency_key")
+//        },
+//        uniqueConstraints = {
+//                @UniqueConstraint(name = "uk_idempotency_key", columnNames = {"idempotency_key","type"})
+//        })
+
+@Table(
+        name = "transactions",
         uniqueConstraints = {
-                @UniqueConstraint(name = "uk_idempotency_key", columnNames = {"idempotency_key"})
-        })
+                @UniqueConstraint(columnNames = {"idempotencyKey", "type"})
+        }
+)
 @Getter
 @Setter
 @NoArgsConstructor
@@ -45,12 +54,12 @@ public class Transaction {
     @Column(name="transaction_source")
     private TransactionSource transactionSource;
 
-    @Column(name = "transaction_id", nullable = false, unique = true, updatable = false, length = 50)
+    @Column(name = "transaction_id", nullable = false, updatable = false, length = 50,unique = true)
     private String transactionId; // internal UUID for traceability
 
     @Enumerated(EnumType.STRING)
     @Column(name = "type", nullable = false, length = 20)
-    private TransactionType type; // CREDIT, DEBIT, TRANSFER_IN, TRANSFER_OUT, REVERSAL
+    private TransactionType type; // TRANSFER,DEPOSIT,WITHDRAWAL
 
     @Column(name = "amount", nullable = false, precision = 19, scale = 4)
     private BigDecimal amount;
@@ -62,8 +71,6 @@ public class Transaction {
     @Column(name = "reference_number", length = 64)
     private String referenceNumber; // external rails ref (UPI/NEFT/etc)
 
-//    @Column(name = "counterparty_account", length = 34)
-//    private String counterpartyAccount; // for transfers (other acc number)
 
     @Column(name = "description", length = 255)
     private String description;
@@ -80,4 +87,8 @@ public class Transaction {
     @Version
     @Column(name = "version", nullable = false)
     private Integer version;
+
+    @OneToMany(mappedBy = "transaction", cascade = CascadeType.ALL, orphanRemoval = true)
+    @Builder.Default
+    private List<Ledger> ledgerEntries = new ArrayList<>();
 }
