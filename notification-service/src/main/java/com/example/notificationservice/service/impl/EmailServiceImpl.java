@@ -12,21 +12,23 @@ public class EmailServiceImpl implements EmailService {
     private final JavaMailSender mailSender;
 
     public EmailServiceImpl(JavaMailSender mailSender) {
+
         this.mailSender = mailSender;
     }
 
-    public void sendWelcomeEmail(String to, String subject, String message) {
-        SimpleMailMessage mail = new SimpleMailMessage();
-        mail.setTo(to);
-        mail.setSubject(subject);
-        mail.setText(message);
-        mailSender.send(mail);
-    }
-    public void sendNormalEmail(String to, String subject, String message) {
-        SimpleMailMessage mail = new SimpleMailMessage();
-        mail.setTo(to);
-        mail.setSubject(subject);
-        mail.setText(message);
-        mailSender.send(mail);
+
+    public boolean sendEmail(String to, String subject, String body) {
+        try {
+            SimpleMailMessage mail = new SimpleMailMessage();
+            mail.setTo(to);
+            mail.setSubject(subject);
+            mail.setText(body);
+            mailSender.send(mail);
+            return true;
+        } catch (Exception e) {
+            System.out.printf(e.getMessage());
+            return false;
+        }
+
     }
 }

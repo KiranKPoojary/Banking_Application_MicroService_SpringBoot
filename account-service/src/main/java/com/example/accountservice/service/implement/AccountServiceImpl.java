@@ -2,6 +2,7 @@ package com.example.accountservice.service.implement;
 
 import com.example.accountservice.client.UserClient;
 import com.example.accountservice.dto.AccountDto;
+import com.example.accountservice.dto.AccountOpenedEvent;
 import com.example.accountservice.dto.LedgerDto;
 import com.example.accountservice.dto.UserDto;
 import com.example.accountservice.entity.Account;
@@ -15,7 +16,9 @@ import com.example.accountservice.repository.AccountRepository;
 import com.example.accountservice.repository.TransactionRepository;
 import com.example.accountservice.service.AccountService;
 import com.example.accountservice.service.TransactionService;
+import com.example.accountservice.service.kafka.KafkaAccountProducer;
 import feign.FeignException;
+import lombok.Builder;
 import lombok.RequiredArgsConstructor;
 import org.apache.catalina.User;
 import org.springframework.stereotype.Service;
@@ -26,16 +29,22 @@ import java.util.List;
 import java.util.Optional;
 
 @Service
+@Builder
 public class AccountServiceImpl implements AccountService {
     private final AccountRepository accountRepository;
     private final UserClient userClient;
     private final TransactionService transactionService;
 
-    public AccountServiceImpl(AccountRepository accountRepository, UserClient userClient, TransactionService transactionService) {
-        this.accountRepository = accountRepository;
-        this.userClient = userClient;
-        this.transactionService = transactionService;
-    }
+
+    private final KafkaAccountProducer kafkaAccountProducer;
+
+//    public AccountServiceImpl(AccountRepository accountRepository, UserClient userClient, TransactionService transactionService, AccountOpenedEvent accountOpenedEvent, KafkaAccountProducer kafkaAccountProducer) {
+//        this.accountRepository = accountRepository;
+//        this.userClient = userClient;
+//        this.transactionService = transactionService;
+//        this.accountOpenedEvent = accountOpenedEvent;
+//        this.kafkaAccountProducer = kafkaAccountProducer;
+//    }
 
     @Override
     public Account createAccount(AccountDto request) {
@@ -65,8 +74,21 @@ public class AccountServiceImpl implements AccountService {
             account.setBalance(BigDecimal.ZERO);
             account.setUpdatedAt(LocalDateTime.now());
             account.setUpdatedBy(request.getUpdated_by());
+            Account newAccount= accountRepository.save(account);
 
-            return accountRepository.save(account);
+            // Call Kafka Producer to push notification On successful open of account
+            AccountOpenedEvent accountOpenedEvent = new AccountOpenedEvent();
+            accountOpenedEvent.setUserId(newAccount.getUserId());
+            accountOpenedEvent.setAccountId(newAccount.getId());
+            accountOpenedEvent.setAccountNumber(newAccount.getAccountNumber());
+            accountOpenedEvent.setAccountType(newAccount.getAccountType());
+            accountOpenedEvent.setInitialBalance(newAccount.getBalance());
+            accountOpenedEvent.setOpenedAt(newAccount.getCreatedAt());
+
+            //Calling Kafka Produce method
+            kafkaAccountProducer.sendAccountOpenedEvent(accountOpenedEvent);
+
+            return account;
 
         } catch (FeignException.NotFound ex) {
             throw new UserNotFoundException("User not found with id: " + request.getUserId());

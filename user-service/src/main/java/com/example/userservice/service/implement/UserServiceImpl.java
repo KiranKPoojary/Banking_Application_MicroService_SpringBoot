@@ -114,6 +114,7 @@ public class UserServiceImpl implements UserService {
             event.setUserId(newUser.getId());
             event.setEmail(newUser.getEmail());
             event.setName(newUser.getFirstName());
+            event.setUsername(newUser.getUsername());
 
             // Send event to Kafka
             userEventProducer.sendUserRegisteredEvent(event);
