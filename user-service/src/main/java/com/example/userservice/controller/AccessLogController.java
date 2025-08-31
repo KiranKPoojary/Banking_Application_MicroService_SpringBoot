@@ -5,6 +5,7 @@ import com.example.userservice.entity.enums.UserAction;
 import com.example.userservice.repository.AccessLogRepository;
 import com.example.userservice.service.UserService;
 import jakarta.servlet.http.HttpServletRequest;
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -14,14 +15,10 @@ import java.util.Optional;
 
 @RestController
 @RequestMapping("/api/v0/access-logs")
+@RequiredArgsConstructor
 public class AccessLogController {
 
     private final UserService userService;
-
-    @Autowired
-    public AccessLogController(UserService userService) {
-        this.userService = userService;
-    }
 
     @PostMapping("/log")
     public ResponseEntity<String> logAction(

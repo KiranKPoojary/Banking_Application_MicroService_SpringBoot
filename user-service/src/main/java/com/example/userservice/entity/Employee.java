@@ -36,8 +36,8 @@ public class Employee {
     private String email;
 
     @NotBlank
-    @Column(name = "password_hash", nullable = false, length = 255)
-    private String passwordHash;
+    @Column(name = "password", nullable = false, length = 255)
+    private String password;
 
     @Enumerated(EnumType.STRING)
     @Column(name = "employee_role", nullable = false, length = 20)

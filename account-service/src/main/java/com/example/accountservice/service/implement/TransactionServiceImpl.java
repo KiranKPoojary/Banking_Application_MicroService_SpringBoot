@@ -309,7 +309,7 @@ public class TransactionServiceImpl implements TransactionService {
     public List<LedgerDto> listByAccount(Long accountId, int page, int size) {
         return ledgerRepo.findByAccount_IdOrderByEntryDateDesc(accountId)
                 .stream()
-                .map(l -> new LedgerDto(l.getTransaction().getTransactionId(),l.getEntryType(),l.getAmount(),l.getDescription(), l.getEntryDate()))
+                .map(l -> new LedgerDto(l.getTransaction().getTransactionId(),l.getEntryType(),l.getAmount(),l.getDescription(),l.getTransaction().getTransactionDate()))
                 .toList();
 
         // For real paging: txRepo.findByAccount_Id( accountId, PageRequest.of(page, size) )

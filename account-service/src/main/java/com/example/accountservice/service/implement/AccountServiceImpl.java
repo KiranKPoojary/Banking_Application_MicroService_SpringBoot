@@ -8,6 +8,7 @@ import com.example.accountservice.entity.Account;
 import com.example.accountservice.entity.Ledger;
 import com.example.accountservice.entity.Transaction;
 import com.example.accountservice.entity.enums.AccountStatus;
+import com.example.accountservice.exception.DuplicateAccountException;
 import com.example.accountservice.exception.ExternalServiceException;
 import com.example.accountservice.exception.UserNotFoundException;
 import com.example.accountservice.repository.AccountRepository;
@@ -45,6 +46,15 @@ public class AccountServiceImpl implements AccountService {
                 throw new UserNotFoundException("User not found with id: " + request.getUserId());
             }
 
+            // Check if user already has account of this type
+            Optional<Account> existingAccount = accountRepository.findByUserIdAndAccountType(
+                    request.getUserId(), request.getAccountType());
+
+            if (existingAccount.isPresent()) {
+                throw new DuplicateAccountException("User already has an account of type: " + request.getAccountType());
+            }
+
+
             // Create new Account entity safely
             Account account = new Account();
             account.setUserId(request.getUserId());
@@ -62,6 +72,8 @@ public class AccountServiceImpl implements AccountService {
             throw new UserNotFoundException("User not found with id: " + request.getUserId());
         } catch (FeignException ex) {
             throw new ExternalServiceException("User service unavailable, please try again later");
+        } catch (Exception e) {
+            throw new RuntimeException("Failed to create account: " + e.getMessage(), e);
         }
     }
 
@@ -84,7 +96,7 @@ public class AccountServiceImpl implements AccountService {
     @Override
     public List<LedgerDto> getTransactionsForAccount(Long accountId) {
         Account acc = accountRepository.findById(accountId)
-                .orElseThrow(() -> new IllegalArgumentException("Account with this account number not found"+ accountId));
+                .orElseThrow(() -> new IllegalArgumentException("Account with the accountId not found"+ accountId));
 
         return transactionService.listByAccount(acc.getId(),1,2);
 

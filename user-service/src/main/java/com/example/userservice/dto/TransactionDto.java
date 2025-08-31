@@ -11,8 +11,8 @@ import java.time.LocalDateTime;
 @Setter
 public class TransactionDto {
     private String transactionId;
-    private String type; // CREDIT DEBIT
+    private String entryType; // CREDIT DEBIT
     private Double amount;
     private String description;
-    private LocalDateTime timestamp;
+    private LocalDateTime entryDate;
 }

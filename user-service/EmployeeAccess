@@ -1,0 +1,40 @@
+# Employee Management
+POST   /api/employees             → Create a new employee   [ADMIN]
+GET    /api/employees             → Get list of employees  [ADMIN]
+GET    /api/employees/{id}        → Get employee details   [ADMIN]
+PUT    /api/employees/{id}        → Update employee        [ADMIN]
+DELETE /api/employees/{id}        → Remove employee        [ADMIN]
+
+# Audit & Security
+GET    /api/audit/logs            → View system activity logs  [ADMIN]
+POST   /api/employees/{id}/lock   → Lock employee account      [ADMIN]
+POST   /api/employees/{id}/unlock → Unlock employee account    [ADMIN]
+
+
+# Account & Transaction Oversight
+GET    /api/accounts              → View all accounts         [MANAGER, ADMIN]
+GET    /api/accounts/{id}         → View account details      [MANAGER, ADMIN]
+POST   /api/accounts/{id}/freeze  → Freeze account            [MANAGER, ADMIN]
+POST   /api/accounts/{id}/unfreeze→ Unfreeze account          [MANAGER, ADMIN]
+
+# Loan & Transaction Approval
+GET    /api/loans/pending         → List pending loan requests    [MANAGER, ADMIN]
+POST   /api/loans/{id}/approve    → Approve loan request          [MANAGER]
+POST   /api/loans/{id}/reject     → Reject loan request           [MANAGER]
+
+GET    /api/transactions/flagged  → List suspicious transactions  [MANAGER, ADMIN]
+POST   /api/transactions/{id}/approve → Approve flagged txn       [MANAGER]
+POST   /api/transactions/{id}/reject  → Reject flagged txn        [MANAGER]
+
+
+# Customer Account Support
+POST   /api/accounts              → Open new account          [EXECUTIVE, MANAGER, ADMIN]
+PUT    /api/accounts/{id}         → Update account details    [EXECUTIVE, MANAGER]
+GET    /api/accounts/{id}         → View account (customer-facing) [EXECUTIVE, MANAGER]
+
+# Transactions
+POST   /api/transactions/deposit   → Deposit money            [EXECUTIVE, CUSTOMER]
+POST   /api/transactions/withdraw  → Withdraw money           [EXECUTIVE, CUSTOMER]
+POST   /api/transactions/transfer  → Transfer money           [EXECUTIVE, CUSTOMER]
+GET    /api/transactions/{id}      → Get transaction details  [EXECUTIVE, CUSTOMER]
+GET    /api/transactions/account/{accountId} → Get all transactions for account [EXECUTIVE, CUSTOMER]

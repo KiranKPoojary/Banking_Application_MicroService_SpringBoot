@@ -12,8 +12,8 @@ import java.util.List;
 public interface TransactionService {
     Transaction deposit(DepositRequest req);
     Transaction withdraw(WithdrawRequest req);
-    // Returns the "TRANSFER_OUT" from source account; you'll also have a matching TRANSFER_IN
     Transaction transfer(TransferRequest req);
 
+    //Fetches transactions of a account using ledger entry
     List<LedgerDto> listByAccount(Long accountId, int page, int size);
 }
