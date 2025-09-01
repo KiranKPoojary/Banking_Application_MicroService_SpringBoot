@@ -16,7 +16,7 @@ public class TransactionEvent {
     private Long accountId;
     private String accountNumber;
     private Long userId;     // ID from user-service
-    private Double amount;
+    private BigDecimal amount;
     private TransactionType type;       // DEPOSIT or WITHDRAWAL
     private String status;     // SUCCESS or FAILED
     private LocalDateTime transactionAt; // timestamp

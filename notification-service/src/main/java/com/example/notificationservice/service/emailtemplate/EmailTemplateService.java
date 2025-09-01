@@ -58,8 +58,7 @@ public class EmailTemplateService {
     }
 
     public String getTransactionTemplate(TransactionEvent event, UserDto user) {
-        String formattedDate = event.getTransactionAt()
-                .format(DateTimeFormatter.ofPattern("dd MMM yyyy HH:mm"));
+        String formattedDate = event.getTransactionAt();
 
         return String.format("""
             <html>
@@ -75,6 +74,7 @@ public class EmailTemplateService {
                   <tr><td><b>Status:</b></td><td>%s</td></tr>
                   <tr><td><b>Date:</b></td><td>%s</td></tr>
                   <tr><td><b>Description:</b></td><td>%s</td></tr>
+                    <tr><td><b>Current Balance:</b></td><td>%s</td></tr>
                 </table>
                 <p style="margin-top:20px; color:#C0392B;">
                   ⚠️ If you did not authorize this transaction, please contact our support team immediately.
@@ -85,6 +85,6 @@ public class EmailTemplateService {
             """, user.getFirstName(), user.getLastName(),
                 event.getTransactionId(), event.getAccountNumber(),
                 event.getType(), event.getAmount(), event.getStatus(),
-                formattedDate, event.getDescription());
+                formattedDate, event.getDescription(),event.getBalance());
     }
 }

@@ -55,6 +55,7 @@ public class AccountServiceImpl implements AccountService {
                 throw new UserNotFoundException("User not found with id: " + request.getUserId());
             }
 
+
             // Check if user already has account of this type
             Optional<Account> existingAccount = accountRepository.findByUserIdAndAccountType(
                     request.getUserId(), request.getAccountType());

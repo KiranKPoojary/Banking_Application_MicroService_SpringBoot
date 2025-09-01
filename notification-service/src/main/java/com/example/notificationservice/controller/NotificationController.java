@@ -19,10 +19,10 @@ public class NotificationController {
 
 
     // 1. POST /notifications/send
-    @PostMapping("/send")
-    public Notification sendNotification(@RequestBody Notification notification) {
-        return notificationService.sendNotification(notification);
-    }
+//    @PostMapping("/send")
+//    public Notification sendNotification(@RequestBody Notification notification) {
+//        return notificationService.sendNotification(notification);
+//    }
 
     // 2. GET /notifications/{id}
     @GetMapping("/{id}")

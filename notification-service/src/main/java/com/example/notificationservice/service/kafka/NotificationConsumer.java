@@ -5,6 +5,7 @@ import com.example.notificationservice.dto.TransactionEvent;
 import com.example.notificationservice.dto.UserRegisteredEvent;
 import com.example.notificationservice.service.NotificationService;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.SerializationFeature;
 import lombok.RequiredArgsConstructor;
 import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.stereotype.Repository;
@@ -16,6 +17,7 @@ public class NotificationConsumer {
 
     private final NotificationService notificationService;
     private final ObjectMapper objectMapper = new ObjectMapper();
+
 
     @KafkaListener(topics = "user-registered", groupId = "notification-service")
     public void consumeUserRegistered(String message) {
@@ -38,6 +40,7 @@ public class NotificationConsumer {
             e.printStackTrace();
         }
     }
+
 
     @KafkaListener(topics = "transaction-events", groupId = "notification-service")
     public void consumeTransactionEvent(String message) {

@@ -16,5 +16,5 @@ public class AccountOpenedEvent {
     private Long userId;      // ID from user-service
     private String accountType; // e.g., SAVINGS, CURRENT
     private BigDecimal initialBalance;
-    private LocalDateTime openedAt;
+    private String openedAt;
 }

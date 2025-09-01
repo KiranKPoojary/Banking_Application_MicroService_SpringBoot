@@ -77,6 +77,10 @@ public class NotificationServiceImpl implements NotificationService {
     @Override
     public void processAccountOpenedEvent(AccountOpenedEvent event) {
         //calling user service to fetch user details using user id
+        if(event.getUserId()==null)
+        {
+            throw new RuntimeException("User not found");
+        }
         UserDto user = userClient.getUserById(event.getUserId());
         String subject = "Account Opened";
         String body =emailTemplateService.getAccountOpenedTemplate(event,user);
@@ -106,6 +110,10 @@ public class NotificationServiceImpl implements NotificationService {
     @Override
     public void processTransactionEvent(TransactionEvent event) {
         //calling user-service to fetch user details
+        if(event.getUserId()==null)
+        {
+            throw new RuntimeException("User not found");
+        }
         UserDto user = userClient.getUserById(event.getUserId());
         String subject = "Transaction Alert";
         String body = emailTemplateService.getTransactionTemplate(event,user);

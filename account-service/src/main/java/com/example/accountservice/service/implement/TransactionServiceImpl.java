@@ -1,9 +1,7 @@
 package com.example.accountservice.service.implement;
 
-import com.example.accountservice.dto.DepositRequest;
-import com.example.accountservice.dto.LedgerDto;
-import com.example.accountservice.dto.TransferRequest;
-import com.example.accountservice.dto.WithdrawRequest;
+import com.example.accountservice.client.UserClient;
+import com.example.accountservice.dto.*;
 import com.example.accountservice.entity.Account;
 import com.example.accountservice.entity.Ledger;
 import com.example.accountservice.entity.Transaction;
@@ -13,6 +11,8 @@ import com.example.accountservice.repository.AccountRepository;
 import com.example.accountservice.repository.LedgerRepository;
 import com.example.accountservice.repository.TransactionRepository;
 import com.example.accountservice.service.TransactionService;
+import com.example.accountservice.service.kafka.KafkaAccountProducer;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.persistence.OptimisticLockException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.dao.DataIntegrityViolationException;
@@ -31,6 +31,9 @@ public class TransactionServiceImpl implements TransactionService {
     private final TransactionRepository txRepo;
     private final AccountRepository accountRepo;
     private final LedgerRepository ledgerRepo;
+    private final UserClient userClient;
+    private final KafkaAccountProducer kafkaAccountProducer;
+
 
     private static final String BANK_CASH_ACCOUNT_NO = "BANK_CASH";
 
@@ -53,15 +56,22 @@ public class TransactionServiceImpl implements TransactionService {
                 Account acc = accountRepo.findByAccountNumber(req.getAccountNumber())
                         .orElseThrow(() -> new IllegalArgumentException("Account not found"));
 
+
+
                 Account BANK_CASH_VAULT = getBankCashAccount();
+
+                //Validating UserID in user -service
+                validateUser(acc.getUserId());
+                validateUser(BANK_CASH_VAULT.getUserId());
 
                 // update balance
                 acc.setBalance(acc.getBalance().add(req.getAmount()));
-                accountRepo.saveAndFlush(acc); // triggers @Version check
+                Account savedAcc= accountRepo.saveAndFlush(acc); // triggers @Version check
 
                 //update bank_cash_vault
                 BANK_CASH_VAULT.setBalance(BANK_CASH_VAULT.getBalance().add(req.getAmount()));
                 accountRepo.saveAndFlush(BANK_CASH_VAULT);
+
 
 
                 //transaction entry
@@ -107,7 +117,23 @@ public class TransactionServiceImpl implements TransactionService {
 
             savedTx.getLedgerEntries().add(debitEntry);
             savedTx.getLedgerEntries().add(creditEntry);
-//                ledgerRepo.saveAll(Arrays.asList(creditEntry, debitEntry));
+
+            //Creating a TransactionEvent Object
+             TransactionEvent event=new TransactionEvent();
+             event.setUserId(acc.getUserId());
+             event.setTransactionAt(savedTx.getTransactionDate());
+             event.setTransactionId(savedTx.getTransactionId());
+             event.setBalance(savedAcc.getBalance());
+             event.setAmount(savedTx.getAmount());
+             event.setStatus(savedTx.getStatus().toString());
+             event.setType(TransactionType.DEPOSIT);
+             event.setAccountNumber(savedAcc.getAccountNumber());
+             event.setDescription(savedTx.getDescription());
+
+            //send transaction event to kafka producer
+                kafkaAccountProducer.sendTransactionEvent(event);
+
+
 
                 return savedTx;
 
@@ -118,6 +144,13 @@ public class TransactionServiceImpl implements TransactionService {
                 return txRepo.findByIdempotencyKey(req.getIdempotencyKey())
                         .orElseThrow(() -> e);
             }
+        }
+    }
+
+    private void validateUser(Long userId) {
+        UserDto userresponse= userClient.getUserById(userId);
+        if(userresponse==null){
+            throw new RuntimeException("User not found in UserService with id: " + userId);
         }
     }
 
@@ -140,9 +173,13 @@ public class TransactionServiceImpl implements TransactionService {
 
                 Account BANK_CASH_VAULT = getBankCashAccount();
 
+                //Validating UserID in user -service
+                validateUser(acc.getUserId());
+                validateUser(BANK_CASH_VAULT.getUserId());
+
                 //update user account
                 acc.setBalance(acc.getBalance().subtract(req.getAmount()));
-                accountRepo.saveAndFlush(acc);
+                Account savedAcc= accountRepo.saveAndFlush(acc);
 
                 //update bank_cash_vault
                 BANK_CASH_VAULT.setBalance(BANK_CASH_VAULT.getBalance().subtract(req.getAmount()));
@@ -190,6 +227,21 @@ public class TransactionServiceImpl implements TransactionService {
                 savedTx.getLedgerEntries().add(debitEntry);
                 savedTx.getLedgerEntries().add(creditEntry);
 
+                //Creating a TransactionEvent Object
+                TransactionEvent event=new TransactionEvent();
+                event.setUserId(acc.getUserId());
+                event.setTransactionAt(savedTx.getTransactionDate());
+                event.setTransactionId(savedTx.getTransactionId());
+                event.setBalance(savedAcc.getBalance());
+                event.setAmount(savedTx.getAmount());
+                event.setStatus(savedTx.getStatus().toString());
+                event.setType(TransactionType.WITHDRAWAL);
+                event.setAccountNumber(savedAcc.getAccountNumber());
+                event.setDescription(savedTx.getDescription());
+
+                //send transaction event to kafka producer
+                kafkaAccountProducer.sendTransactionEvent(event);
+
                 return savedTx;
 
             } catch (OptimisticLockException e) {
@@ -227,16 +279,20 @@ public class TransactionServiceImpl implements TransactionService {
                     throw new IllegalStateException("Insufficient balance");
                 }
 
+                //Validating UserID in user -service
+                validateUser(from.getUserId());
+                validateUser(to.getUserId());
+
                 // debit from, credit to (optimistic lock will guard each row)
                 from.setBalance(from.getBalance().subtract(req.getAmount()));
                 to.setBalance(to.getBalance().add(req.getAmount()));
 
-                accountRepo.saveAndFlush(from);
-                accountRepo.saveAndFlush(to);
+                Account savedFromAccount=accountRepo.saveAndFlush(from);
+                Account savedToAccount= accountRepo.saveAndFlush(to);
 
                 String commonTxnId = UUID.randomUUID().toString();
 
-                // OUT record-Transaction Record
+                // Transaction Record
                 Transaction TX = txRepo.save(Transaction.builder()
                         .fromaccount(from)
                         .toaccount(to)
@@ -250,20 +306,6 @@ public class TransactionServiceImpl implements TransactionService {
                         .createdBy(req.getCreatedBy())
                         .idempotencyKey(req.getIdempotencyKey())
                         .build());
-
-//                // IN record
-//                txRepo.save(Transaction.builder()
-//                        .fromaccount(from)
-//                        .toaccount(to)
-//                        .transactionId(commonTxnId)
-//                        .type(TransactionType.CREDIT)
-//                        .amount(req.getAmount())
-//                        .status(TransactionStatus.SUCCESS)
-//                        .description(req.getDescription())
-//                        .transactionDate(LocalDateTime.now())
-//                        .createdBy(req.getCreatedBy())
-//                        .idempotencyKey(req.getIdempotencyKey()) // make unique as well
-//                        .build());
 
 
                 // CREATE ledger entries (double-entry)
@@ -291,6 +333,38 @@ public class TransactionServiceImpl implements TransactionService {
 
                 TX.getLedgerEntries().add(debitEntry);
                 TX.getLedgerEntries().add(creditEntry);
+
+                //Creating a TransactionEvent Object
+                TransactionEvent fromevent=new TransactionEvent();
+                fromevent.setUserId(from.getUserId());
+                fromevent.setTransactionAt(TX.getTransactionDate());
+                fromevent.setTransactionId(TX.getTransactionId());
+                fromevent.setBalance(savedFromAccount.getBalance());
+                fromevent.setAmount(TX.getAmount());
+                fromevent.setStatus(TX.getStatus().toString());
+                fromevent.setType(TransactionType.DEBIT);
+                fromevent.setAccountNumber(savedFromAccount.getAccountNumber());
+                fromevent.setDescription(TX.getDescription());
+
+                //send transaction event to kafka producer -From Account
+                kafkaAccountProducer.sendTransactionEvent(fromevent);
+
+
+                //CREDIT EMAIL sending
+                TransactionEvent toevent=new TransactionEvent();
+
+                toevent.setUserId(to.getUserId());
+                toevent.setTransactionAt(TX.getTransactionDate());
+                toevent.setTransactionId(TX.getTransactionId());
+                toevent.setBalance(savedFromAccount.getBalance());
+                toevent.setAmount(TX.getAmount());
+                toevent.setStatus(TX.getStatus().toString());
+                toevent.setType(TransactionType.CREDIT);
+                toevent.setAccountNumber(savedToAccount.getAccountNumber());
+                toevent.setDescription(TX.getDescription());
+
+                //send transaction event to kafka producer -TO Account
+                kafkaAccountProducer.sendTransactionEvent(toevent);
 
                 return TX;
 

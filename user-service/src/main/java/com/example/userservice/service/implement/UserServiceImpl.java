@@ -13,8 +13,8 @@ import com.example.userservice.entity.enums.UserStatus;
 import com.example.userservice.exception.UserNotFoundException;
 import com.example.userservice.repository.AccessLogRepository;
 import com.example.userservice.repository.UserRepository;
-import com.example.userservice.service.UserRegisteredEventProducer;
 import com.example.userservice.service.UserService;
+import com.example.userservice.service.kafka.KafkaUserProducer;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -31,10 +31,10 @@ public class UserServiceImpl implements UserService {
    final AccessLogRepository accessLogRepository;
    final PasswordEncoder passwordEncoder;
    final AccountClient accountClient;
-   final UserRegisteredEventProducer userEventProducer;
+  private final KafkaUserProducer userEventProducer;
    final ObjectMapper objectMapper;
 
-   public UserServiceImpl(UserRepository userRepository, AccessLogRepository accessLogRepository, PasswordEncoder passwordEncoder, AccountClient accountClient, UserRegisteredEventProducer userEventProducer, ObjectMapper objectMapper) {
+   public UserServiceImpl(UserRepository userRepository, AccessLogRepository accessLogRepository, PasswordEncoder passwordEncoder, AccountClient accountClient, KafkaUserProducer userEventProducer, ObjectMapper objectMapper) {
        this.userRepository = userRepository;
        this.accessLogRepository = accessLogRepository;
        this.passwordEncoder = passwordEncoder;
@@ -113,8 +113,10 @@ public class UserServiceImpl implements UserService {
             UserRegisteredEvent event=new UserRegisteredEvent();
             event.setUserId(newUser.getId());
             event.setEmail(newUser.getEmail());
-            event.setName(newUser.getFirstName());
+            event.setFirstName(newUser.getFirstName());
+            event.setLastName(newUser.getLastName());
             event.setUsername(newUser.getUsername());
+
 
             // Send event to Kafka
             userEventProducer.sendUserRegisteredEvent(event);
