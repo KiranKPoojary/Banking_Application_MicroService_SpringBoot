@@ -21,10 +21,11 @@ public class AuthService {
     private JwtUtil jwtUtil;
     private PasswordEncoder passwordEncoder;
 
-    public AuthService(UserRepository userRepository, EmployeeRepository employeeRepository, JwtUtil jwtUtil) {
+    public AuthService(UserRepository userRepository, EmployeeRepository employeeRepository, JwtUtil jwtUtil, PasswordEncoder passwordEncoder) {
         this.userRepository = userRepository;
         this.employeeRepository = employeeRepository;
         this.jwtUtil = jwtUtil;
+        this.passwordEncoder = passwordEncoder;
     }
 
     public String authenticateUser(UserLoginRequest request) {

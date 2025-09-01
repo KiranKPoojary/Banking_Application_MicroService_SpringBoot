@@ -2,7 +2,6 @@ package com.example.userservice.controller;
 
 
 import com.example.userservice.dto.AccountDto;
-import com.example.userservice.dto.LoginRequestDto;
 import com.example.userservice.dto.TransactionDto;
 import com.example.userservice.dto.UserSignupDto;
 import com.example.userservice.entity.User;
@@ -10,7 +9,6 @@ import com.example.userservice.entity.enums.UserStatus;
 import com.example.userservice.service.UserService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -29,20 +27,20 @@ public class UserController {
         return ResponseEntity.ok(userService.createUser(user));
     }
 
-    @PostMapping("/login")
-    public ResponseEntity<?> login(@RequestBody LoginRequestDto loginRequest) {
-        if (loginRequest.getUsername() == null || loginRequest.getPassword() == null) {
-            return ResponseEntity.badRequest().build();
-        }
-
-        boolean isAuthenticated = userService.authenticate(loginRequest.getUsername(), loginRequest.getPassword());
-
-        if (isAuthenticated) {
-            return ResponseEntity.ok("Login successful");
-        } else {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid credentials");
-        }
-    }
+//    @PostMapping("/login")
+//    public ResponseEntity<?> login(@RequestBody UserLoginRequest loginRequest) {
+//        if (loginRequest.getUsername() == null || loginRequest.getPassword() == null) {
+//            return ResponseEntity.badRequest().build();
+//        }
+//
+//        boolean isAuthenticated = userService.authenticate(loginRequest.getUsername(), loginRequest.getPassword());
+//
+//        if (isAuthenticated) {
+//            return ResponseEntity.ok("Login successful");
+//        } else {
+//            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid credentials");
+//        }
+//    }
 
     @PostMapping()
     public ResponseEntity<User> createUser(@Valid @RequestBody User user) {
