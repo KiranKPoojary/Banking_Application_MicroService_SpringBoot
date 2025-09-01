@@ -23,6 +23,9 @@ public class Employee {
     @Column(name = "employee_id")   // Primary Key
     private Long employeeId;
 
+    @Column(name = "username", nullable = false, unique = true)
+    private String username;
+
     @NotBlank
     @Column(name = "first_name", nullable = false, length = 50)
     private String firstName;
