@@ -3,16 +3,20 @@ package com.example.userservice.util;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
+import io.jsonwebtoken.io.Decoders;
+import io.jsonwebtoken.security.Keys;
 import org.springframework.stereotype.Component;
 
-import java.util.Base64;
+import java.security.Key;
 import java.util.Date;
 import java.util.Map;
 
 @Component
 public class JwtUtil {
 
-    private static final String SECRET_KEY = Base64.getEncoder().encodeToString("nS3+qAxEw0yX7eqsQyoM42X+O6y6qjQK0ZvMNoC2xRU=".getBytes());
+    private static final String SECRET = "S2lyYW5LUG9vamFyeTEyM05lZXJqZWRkdTk2S2VlcnRoaQ=="; // must be at least 32 chars
+    private static final Key SECRET_KEY = Keys.hmacShaKeyFor(Decoders.BASE64.decode(SECRET));
+
 
     private final long EXPIRATION_TIME = 1000 * 60 * 60;
 
@@ -22,15 +26,19 @@ public class JwtUtil {
                     .setSubject(subject)   // can be username or empId
                     .setIssuedAt(new Date(System.currentTimeMillis()))
                     .setExpiration(new Date(System.currentTimeMillis() + EXPIRATION_TIME)) // 1 hr
-                    .signWith(SignatureAlgorithm.HS256, SECRET_KEY)
+                    .signWith(SECRET_KEY, SignatureAlgorithm.HS256)
                     .compact();
         }
 
-        public Claims extractAllClaims(String token) {
-            return Jwts.parser().setSigningKey(SECRET_KEY).parseClaimsJws(token).getBody();
-        }
+    public Claims extractAllClaims(String token) {
+        return Jwts.parserBuilder()
+                .setSigningKey(SECRET_KEY)
+                .build()
+                .parseClaimsJws(token)
+                .getBody();
+    }
 
-        public String extractUsername(String token) {
+    public String extractUsername(String token) {
             return extractAllClaims(token).get("username", String.class);
         }
 
