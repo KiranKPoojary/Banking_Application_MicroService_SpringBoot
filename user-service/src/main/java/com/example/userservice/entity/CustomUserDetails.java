@@ -14,18 +14,32 @@ import java.util.Collections;
 public class CustomUserDetails implements UserDetails {
 
     private String username;
-    private String password;
+    private Long id;
     private String role;
+    private Collection<? extends GrantedAuthority> authorities;
 
+    public CustomUserDetails(String username, Long id, String role) {
+        this.username = username;
+        this.id = id;
+        this.role = role;
+        this.authorities = Collections.singletonList(new SimpleGrantedAuthority("ROLE_" + role));    }
+
+    public Long getId() {
+        return id;
+    }
+
+    public String getRole() {
+        return role;
+    }
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        return Collections.singletonList(new SimpleGrantedAuthority(role));
+        return authorities;
     }
 
     @Override
     public String getPassword() {
-        return password;
+        return null; // Not used in header-based auth
     }
 
     @Override
@@ -35,21 +49,21 @@ public class CustomUserDetails implements UserDetails {
 
     @Override
     public boolean isAccountNonExpired() {
-        return UserDetails.super.isAccountNonExpired();
+        return true;
     }
 
     @Override
     public boolean isAccountNonLocked() {
-        return UserDetails.super.isAccountNonLocked();
+        return true;
     }
 
     @Override
     public boolean isCredentialsNonExpired() {
-        return UserDetails.super.isCredentialsNonExpired();
+        return true;
     }
 
     @Override
     public boolean isEnabled() {
-        return UserDetails.super.isEnabled();
+        return true;
     }
 }

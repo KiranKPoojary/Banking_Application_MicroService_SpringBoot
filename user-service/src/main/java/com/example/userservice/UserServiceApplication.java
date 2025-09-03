@@ -4,10 +4,12 @@ import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.cloud.openfeign.EnableFeignClients;
 import org.springframework.data.jpa.repository.config.EnableJpaAuditing;
+import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 
 @SpringBootApplication
 @EnableJpaAuditing
 @EnableFeignClients
+@EnableMethodSecurity
 //@EnableEurekaClient this is not required.if user service not registered enable this then
 public class UserServiceApplication {
 

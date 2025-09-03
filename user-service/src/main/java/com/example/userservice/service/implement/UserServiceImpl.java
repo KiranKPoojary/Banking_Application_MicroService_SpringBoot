@@ -47,7 +47,25 @@ public class UserServiceImpl implements UserService {
    public User createUserAll(User user) {
        user.setStatus(UserStatus.ACTIVE);
        user.setPassword(passwordEncoder.encode(user.getPassword()));
-       return userRepository.save(user);
+       User newUser=userRepository.save(user);
+
+       try {
+           UserRegisteredEvent event=new UserRegisteredEvent();
+           event.setUserId(newUser.getId());
+           event.setEmail(newUser.getEmail());
+           event.setFirstName(newUser.getFirstName());
+           event.setLastName(newUser.getLastName());
+           event.setUsername(newUser.getUsername());
+
+
+           // Send event to Kafka
+           userEventProducer.sendUserRegisteredEvent(event);
+       } catch (Exception e) {
+           System.out.println("Failed to send user registered event"+ e);
+       }
+       return newUser;
+
+
    }
 
     @Override

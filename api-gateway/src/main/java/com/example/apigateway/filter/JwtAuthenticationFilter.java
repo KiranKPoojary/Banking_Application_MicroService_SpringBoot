@@ -94,7 +94,7 @@ public class JwtAuthenticationFilter implements GlobalFilter, Ordered {
                 })
                 .header("X-Auth-User", username)
                 .header("X-Auth-Role", role)
-                .header("X_Auth-Id", String.valueOf(Id))
+                .header("X-Auth-Id", String.valueOf(Id))
                 .build();
 
         System.out.println(modifiedRequest.getHeaders());
