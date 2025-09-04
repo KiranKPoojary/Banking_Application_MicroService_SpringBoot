@@ -4,9 +4,7 @@ import com.example.userservice.dto.AccountDto;
 import com.example.userservice.dto.TransactionDto;
 import com.example.userservice.dto.UserSignupDto;
 import com.example.userservice.entity.User;
-import com.example.userservice.entity.enums.UserAction;
 import com.example.userservice.entity.enums.UserStatus;
-import jakarta.servlet.http.HttpServletRequest;
 
 import java.util.List;
 import java.util.Optional;
@@ -52,7 +50,7 @@ public interface UserService {
 //    void removeRole(Long userId, String role);
 
     // Audit / Logs
-    void logUserAction(Long userId, UserAction action, HttpServletRequest request);
+//    void logUserAction(Long userId, UserAction action, HttpServletRequest request);
 
     //filter
 //    List<User> searchUsers(String keyword); // e.g., by name, email, username

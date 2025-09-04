@@ -3,6 +3,7 @@ package com.example.userservice.entity.enums;
 public enum UserAction {
     LOGIN,
     LOGOUT,
+    REGISTER,
     PASSWORD_CHANGE,
     PROFILE_UPDATE,
     ACCOUNT_LOCKED,

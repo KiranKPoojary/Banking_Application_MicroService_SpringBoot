@@ -270,30 +270,6 @@ public class UserServiceImpl implements UserService {
 //        });
 //    }
 
-    @Override
-    public void logUserAction(Long userId, UserAction action, HttpServletRequest request) {
-        User user = userRepository.findById(userId)
-                .orElseThrow(() -> new RuntimeException("User not found"));
 
-        String ipAddress = getClientIp(request);
-        String userAgent = request.getHeader("User-Agent");
-
-        AccessLog log = new AccessLog();
-        log.setUser(user);
-        log.setAction(action);
-        log.setIpAddress(ipAddress);
-        log.setUserAgent(userAgent);
-        log.setTimestamp(LocalDateTime.now());
-
-        accessLogRepository.save(log);
-    }
-
-    private String getClientIp(HttpServletRequest request) {
-        String xfHeader = request.getHeader("X-Forwarded-For");
-        if (xfHeader == null) {
-            return request.getRemoteAddr();
-        }
-        return xfHeader.split(",")[0];
-    }
 
 }

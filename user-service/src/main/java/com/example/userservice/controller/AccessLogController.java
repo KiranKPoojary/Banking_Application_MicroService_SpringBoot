@@ -1,12 +1,8 @@
 package com.example.userservice.controller;
 
 import com.example.userservice.entity.AccessLog;
-import com.example.userservice.entity.enums.UserAction;
 import com.example.userservice.repository.AccessLogRepository;
-import com.example.userservice.service.UserService;
-import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -18,20 +14,23 @@ import java.util.Optional;
 @RequiredArgsConstructor
 public class AccessLogController {
 
-    private final UserService userService;
 
-    @PostMapping("/log")
-    public ResponseEntity<String> logAction(
-            @RequestParam Long userId,
-            @RequestParam UserAction action,
-            HttpServletRequest request) {
+    private AccessLogRepository accessLogRepository;
 
-        userService.logUserAction(userId, action, request);
-        return ResponseEntity.ok("Action logged successfully");
+    public AccessLogController(AccessLogRepository accessLogRepository) {
+        this.accessLogRepository = accessLogRepository;
     }
 
-    @Autowired
-    private AccessLogRepository accessLogRepository;
+//    @PostMapping("/log")
+//    public ResponseEntity<String> logAction(
+//            @RequestParam Long userId,
+//            @RequestParam UserAction action,
+//            HttpServletRequest request) {
+//
+//        userService.logUserAction(userId, action, request);
+//        return ResponseEntity.ok("Action logged successfully");
+//    }
+
 
     // Create AccessLog
     @PostMapping

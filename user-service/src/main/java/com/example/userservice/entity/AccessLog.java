@@ -26,9 +26,12 @@ public class AccessLog{
     @Column(name = "log_id")
     private Long logId;
 
-    @ManyToOne(fetch = FetchType.LAZY) // Many logs can belong to one user
-    @JoinColumn(name = "user_id", nullable = false)
-    private User user;
+//    @ManyToOne(fetch = FetchType.LAZY) // Many logs can belong to one user
+//    @JoinColumn(name = "user_id", nullable = false)
+//    private User user;
+
+    @Column(name="username")
+    private String username;
 
     @Column(name = "ip_address")
     private String ipAddress;
