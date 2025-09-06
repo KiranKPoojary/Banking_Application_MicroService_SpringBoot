@@ -2,7 +2,7 @@ package com.example.userservice.entity.enums;
 
 public enum Role {
     CUSTOMER,
-    EXCECUTIVE,
+    EXECUTIVE,
     MANAGER,
     ADMIN
 }

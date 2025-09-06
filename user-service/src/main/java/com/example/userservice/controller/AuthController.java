@@ -14,10 +14,9 @@ import com.example.userservice.service.UserService;
 import com.example.userservice.util.RequestUtil;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.Authentication;
+import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDateTime;
 
@@ -116,5 +115,29 @@ public class AuthController {
         System.out.println("saved access log login");
 
         return ResponseEntity.ok(new JwtResponse(token));
+    }
+
+    // Common Logout Endpoint (for both users & employees)
+    @PreAuthorize("#id==authentication.principal.id")
+    @PostMapping("/logout/{id}")
+    public ResponseEntity<?> logout(@PathVariable Long id, Authentication authentication,HttpServletRequest request) {
+
+
+        // 🟢 Log logout action
+        AccessLog log = new AccessLog();
+        log.setUsername(authentication.getName()); // implement this helper
+        log.setTimestamp(LocalDateTime.now());
+        log.setAction(UserAction.LOGOUT);
+        log.setUserAgent(RequestUtil.getUserAgent(request));
+        log.setIpAddress(RequestUtil.getClientIp(request));
+
+        accessLogService.saveAccess(log);
+        System.out.println("saved access log logout");
+
+        // (Optional) Add token to blacklist if you want server-side revocation
+        // revokedTokenService.revoke(token);
+        //not required now
+
+        return ResponseEntity.ok("Logged out successfully");
     }
 }

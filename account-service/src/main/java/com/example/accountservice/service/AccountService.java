@@ -14,8 +14,12 @@ public interface AccountService {
 //    Optional<Account> getAccountByName(String name);
     List<LedgerDto> getTransactionsForAccount(Long accountId);
     Account createAccount(AccountDto account);
+    Account approveAccount(Long accountId,Long EmployeeId);
     Optional<Account> getAccountById(Long id);
     List<Account> getAccountsByUserId(Long userId);
     Account updateAccount(Long id, Account account);
     void deleteAccount(Long id);
+
+
+//    Account findById(Long id);
 }

@@ -2,6 +2,7 @@ package com.example.accountservice.entity;
 
 
 import com.example.accountservice.entity.enums.TransactionType;
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -31,6 +32,7 @@ public class Ledger {
     private Long id;
 
     /** Which account this entry belongs to */
+
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "account_id", nullable = false)
     private Account account;
@@ -48,6 +50,7 @@ public class Ledger {
     private String description;
 
     /** Link to the transaction (business event) that generated this entry */
+    @JsonBackReference
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "txn_id", nullable = false)
     private Transaction transaction;

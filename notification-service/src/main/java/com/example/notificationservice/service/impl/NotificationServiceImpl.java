@@ -81,7 +81,7 @@ public class NotificationServiceImpl implements NotificationService {
         {
             throw new RuntimeException("User not found");
         }
-        UserDto user = userClient.getUserById(event.getUserId());
+        UserDto user = userClient.getUserById(event.getUserId(),"Kiran@1234_Notification");
         String subject = "Account Opened";
         String body =emailTemplateService.getAccountOpenedTemplate(event,user);
         String email = user.getEmail();
@@ -114,7 +114,7 @@ public class NotificationServiceImpl implements NotificationService {
         {
             throw new RuntimeException("User not found");
         }
-        UserDto user = userClient.getUserById(event.getUserId());
+        UserDto user = userClient.getUserById(event.getUserId(),"Kiran@1234_Notification");
         String subject = "Transaction Alert";
         String body = emailTemplateService.getTransactionTemplate(event,user);
         String email= user.getEmail();

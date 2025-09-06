@@ -130,10 +130,16 @@ public class TransactionServiceImpl implements TransactionService {
              event.setAccountNumber(savedAcc.getAccountNumber());
              event.setDescription(savedTx.getDescription());
 
-            //send transaction event to kafka producer
-                kafkaAccountProducer.sendTransactionEvent(event);
 
-
+                // send transaction event to kafka producer in a separate try-catch block
+                try {
+                    kafkaAccountProducer.sendTransactionEvent(event);
+                } catch (Exception e) {
+                    // Log the error but do not re-throw it, to prevent a transaction rollback.
+                    // This allows the database changes to be committed.
+                    System.err.println("Failed to send Kafka event: " + e.getMessage());
+                    // Optionally, implement a retry mechanism or add the event to a dead letter queue.
+                }
 
                 return savedTx;
 
@@ -240,7 +246,15 @@ public class TransactionServiceImpl implements TransactionService {
                 event.setDescription(savedTx.getDescription());
 
                 //send transaction event to kafka producer
-                kafkaAccountProducer.sendTransactionEvent(event);
+                // send transaction event to kafka producer in a separate try-catch block
+                try {
+                    kafkaAccountProducer.sendTransactionEvent(event);
+                } catch (Exception e) {
+                    // Log the error but do not re-throw it, to prevent a transaction rollback.
+                    // This allows the database changes to be committed.
+                    System.err.println("Failed to send Kafka event: " + e.getMessage());
+                    // Optionally, implement a retry mechanism or add the event to a dead letter queue.
+                }
 
                 return savedTx;
 
@@ -356,7 +370,7 @@ public class TransactionServiceImpl implements TransactionService {
                 toevent.setUserId(to.getUserId());
                 toevent.setTransactionAt(TX.getTransactionDate());
                 toevent.setTransactionId(TX.getTransactionId());
-                toevent.setBalance(savedFromAccount.getBalance());
+                toevent.setBalance(savedToAccount.getBalance());
                 toevent.setAmount(TX.getAmount());
                 toevent.setStatus(TX.getStatus().toString());
                 toevent.setType(TransactionType.CREDIT);

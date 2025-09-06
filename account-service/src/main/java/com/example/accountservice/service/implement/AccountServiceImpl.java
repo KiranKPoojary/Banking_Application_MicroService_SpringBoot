@@ -6,6 +6,7 @@ import com.example.accountservice.dto.AccountOpenedEvent;
 import com.example.accountservice.dto.LedgerDto;
 import com.example.accountservice.dto.UserDto;
 import com.example.accountservice.entity.Account;
+import com.example.accountservice.entity.CustomUserDetails;
 import com.example.accountservice.entity.Ledger;
 import com.example.accountservice.entity.Transaction;
 import com.example.accountservice.entity.enums.AccountStatus;
@@ -21,6 +22,8 @@ import feign.FeignException;
 import lombok.Builder;
 import lombok.RequiredArgsConstructor;
 import org.apache.catalina.User;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
@@ -71,25 +74,27 @@ public class AccountServiceImpl implements AccountService {
             account.setAccountNumber(request.getAccountNumber());
             account.setAccountType(request.getAccountType());
             account.setCreatedAt(LocalDateTime.now());
-            account.setStatus(AccountStatus.ACTIVE);
+            account.setStatus(AccountStatus.PENDING_APPROVAL);
             account.setBalance(BigDecimal.ZERO);
             account.setUpdatedAt(LocalDateTime.now());
-            account.setUpdatedBy(request.getUpdated_by());
+            account.setCreatedBy(request.getCreatedBy());
             Account newAccount= accountRepository.save(account);
 
-            // Call Kafka Producer to push notification On successful open of account
-            AccountOpenedEvent accountOpenedEvent = new AccountOpenedEvent();
-            accountOpenedEvent.setUserId(newAccount.getUserId());
-            accountOpenedEvent.setAccountId(newAccount.getId());
-            accountOpenedEvent.setAccountNumber(newAccount.getAccountNumber());
-            accountOpenedEvent.setAccountType(newAccount.getAccountType());
-            accountOpenedEvent.setInitialBalance(newAccount.getBalance());
-            accountOpenedEvent.setOpenedAt(newAccount.getCreatedAt());
+// ***********This is not called - Kafka called when account gets approved by Manager
 
-            //Calling Kafka Produce method
-            kafkaAccountProducer.sendAccountOpenedEvent(accountOpenedEvent);
+//            // Call Kafka Producer to push notification On successful open of account
+//            AccountOpenedEvent accountOpenedEvent = new AccountOpenedEvent();
+//            accountOpenedEvent.setUserId(newAccount.getUserId());
+//            accountOpenedEvent.setAccountId(newAccount.getId());
+//            accountOpenedEvent.setAccountNumber(newAccount.getAccountNumber());
+//            accountOpenedEvent.setAccountType(newAccount.getAccountType());
+//            accountOpenedEvent.setInitialBalance(newAccount.getBalance());
+//            accountOpenedEvent.setOpenedAt(newAccount.getCreatedAt());
+//
+//            //Calling Kafka Produce method
+//            kafkaAccountProducer.sendAccountOpenedEvent(accountOpenedEvent);
 
-            return account;
+            return newAccount;
 
         } catch (FeignException.NotFound ex) {
             throw new UserNotFoundException("User not found with id: " + request.getUserId());
@@ -98,6 +103,31 @@ public class AccountServiceImpl implements AccountService {
         } catch (Exception e) {
             throw new RuntimeException("Failed to create account: " + e.getMessage(), e);
         }
+    }
+
+    //Approve Account
+    @Override
+    public Account approveAccount(Long id,Long EmployeeId){
+        Account account=accountRepository.findById(id)
+                .orElseThrow(()->new IllegalArgumentException("Account not found with id: " + id));
+        account.setApprovedBy(EmployeeId);
+        account.setUpdatedAt(LocalDateTime.now());
+        account.setStatus(AccountStatus.ACTIVE);
+
+        Account approvedAccount= accountRepository.save(account);
+        // Call Kafka Producer to push notification On successful open of account
+        AccountOpenedEvent accountOpenedEvent = new AccountOpenedEvent();
+        accountOpenedEvent.setUserId(approvedAccount.getUserId());
+        accountOpenedEvent.setAccountId(approvedAccount.getId());
+        accountOpenedEvent.setAccountNumber(approvedAccount.getAccountNumber());
+        accountOpenedEvent.setAccountType(approvedAccount.getAccountType());
+        accountOpenedEvent.setInitialBalance(approvedAccount.getBalance());
+        accountOpenedEvent.setOpenedAt(approvedAccount.getCreatedAt());
+
+        //Calling Kafka Produce method
+        kafkaAccountProducer.sendAccountOpenedEvent(accountOpenedEvent);
+
+        return approvedAccount;
     }
 
     @Override

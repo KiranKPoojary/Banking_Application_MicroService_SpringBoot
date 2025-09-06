@@ -45,37 +45,37 @@ public class UserController {
     }
 //,
     // ✅ Get User by ID
-    @PreAuthorize("#id == authentication.principal.id || hasAnyRole('ADMIN', 'MANAGER', 'EXECUTIVE')")
+    @PreAuthorize("hasRole('SERVICE') || #id == authentication.principal.id || hasAnyRole('ADMIN', 'MANAGER', 'EXECUTIVE') ")
     @GetMapping("/{id}")
-    public ResponseEntity<?> getUserById(@PathVariable Long id){
+    public ResponseEntity<?> getUserById(@PathVariable Long id,Authentication authentication){
         return ResponseEntity.ok(userService.getUserById(id));
     }
 
     //get all accounts of user from account service
     @PreAuthorize("#id == authentication.principal.id || hasAnyRole('ADMIN', 'MANAGER', 'EXECUTIVE')")
     @GetMapping("/{id}/accounts")
-    public ResponseEntity<List<AccountDto>> getUserAccounts(@PathVariable Long id) {
+    public ResponseEntity<List<AccountDto>> getUserAccounts(@PathVariable Long id,Authentication authentication) {
         return ResponseEntity.ok(userService.getUserAccounts(id));
     }
 
     //get account transactions from account service
     @PreAuthorize("#id == authentication.principal.id ||  hasAnyRole('ADMIN', 'MANAGER', 'EXECUTIVE')")
     @GetMapping("/{id}/{accountId}/transactions")
-    public ResponseEntity<List<TransactionDto>> getUserTransactions(@PathVariable Long id,@PathVariable Long accountId) {
+    public ResponseEntity<List<TransactionDto>> getUserTransactions(@PathVariable Long id,@PathVariable Long accountId,Authentication authentication) {
         return ResponseEntity.ok(userService.getUserTransactions(id,accountId));
     }
 
     // ✅ Update User
     @PreAuthorize("#id == authentication.principal.id ||  hasAnyRole('ADMIN', 'MANAGER','EXECUTIVE')")
     @PutMapping("/{id}")
-    public ResponseEntity<User> updateUser(@PathVariable Long id, @RequestBody User userDetails) {
+    public ResponseEntity<User> updateUser(@PathVariable Long id, @RequestBody User userDetails,Authentication authentication) {
         return ResponseEntity.ok(userService.updateUser(id, userDetails));
     }
 
     // ✅ Delete User
     @PreAuthorize("#id == authentication.principal.id ||  hasAnyRole('ADMIN', 'MANAGER')")
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteUser(@PathVariable Long id) {
+    public ResponseEntity<Void> deleteUser(@PathVariable Long id,Authentication authentication) {
         userService.deleteUser(id);
         return ResponseEntity.noContent().build();
     }

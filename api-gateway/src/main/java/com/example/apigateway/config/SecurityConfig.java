@@ -19,29 +19,4 @@ public class SecurityConfig {
     }
 }
 
-//@Configuration
-//public class SecurityConfig {
-//
-//    private final JwtAuthenticationFilter jwtAuthenticationFilter;
-//
-//    public SecurityConfig(JwtAuthenticationFilter jwtAuthenticationFilter) {
-//        this.jwtAuthenticationFilter = jwtAuthenticationFilter;
-//    }
-//
-//    @Bean
-//    public SecurityWebFilterChain securityWebFilterChain(ServerHttpSecurity http) {
-//        http.csrf(ServerHttpSecurity.CsrfSpec::disable)
-//                .formLogin(ServerHttpSecurity.FormLoginSpec::disable)
-//                .httpBasic(ServerHttpSecurity.HttpBasicSpec::disable);
-//
-//        // Add JWT filter at the AUTHENTICATION position
-//        http.addFilterAt(jwtAuthenticationFilter, SecurityWebFiltersOrder.AUTHENTICATION);
-//
-//        http.authorizeExchange(exchanges -> exchanges
-//                .pathMatchers("/api/v0/auth/**").permitAll()  // public routes
-//                .anyExchange().authenticated()               // all others require JWT
-//        );
-//
-//        return http.build();
-//    }
-//}
+

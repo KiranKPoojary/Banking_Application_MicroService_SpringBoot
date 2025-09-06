@@ -3,6 +3,7 @@ package com.example.accountservice.entity;
 import com.example.accountservice.entity.enums.TransactionSource;
 import com.example.accountservice.entity.enums.TransactionStatus;
 import com.example.accountservice.entity.enums.TransactionType;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -88,6 +89,8 @@ public class Transaction {
     @Column(name = "version", nullable = false)
     private Integer version;
 
+
+    @JsonManagedReference
     @OneToMany(mappedBy = "transaction", cascade = CascadeType.ALL, orphanRemoval = true)
     @Builder.Default
     private List<Ledger> ledgerEntries = new ArrayList<>();

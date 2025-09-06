@@ -44,8 +44,11 @@ public class Account {
     @Column(name = "updated_at")
     private LocalDateTime updatedAt;
 
-    @Column(name = "updated_by")
-    private String updatedBy;
+    @Column(name = "created_by")
+    private Long createdBy;
+
+    @Column(name = "approved_by")
+    private Long approvedBy;
 
     // Many accounts can belong to one user
     @Column(name = "user_id", nullable = false)

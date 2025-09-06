@@ -19,4 +19,5 @@ public class AccountOpenedEvent {
     private AccountType accountType; // e.g., SAVINGS, CURRENT
     private BigDecimal initialBalance;
     private LocalDateTime openedAt;    // timestamp
+
 }

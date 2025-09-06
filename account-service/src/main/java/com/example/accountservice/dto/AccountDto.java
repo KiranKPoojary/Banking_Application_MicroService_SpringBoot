@@ -13,6 +13,6 @@ public class AccountDto {
     private Long userId;
     private String accountNumber;
     private AccountType AccountType;
-    private String updated_by;
+    private Long createdBy;
 
 }
