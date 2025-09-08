@@ -1,0 +1,17 @@
+<div class="login-container" justify-content="center" align-items="center">
+
+    <h2>Login to Your Account</h2>
+    <oj-form-layout>
+        <oj-input-text id="username" label-hint="Username" required value="{{username}}"> </oj-input-text>
+        <oj-input-password id="password" label-hint="Password" required value="{{password}}"></oj-input-password>
+        <oj-button id="loginButton" on-oj-action="[[login]]">Login</oj-button>
+    </oj-form-layout>
+
+    <div class="register-link">
+        <span>New user? <a href="#" id="registerLink">Register</a></span>
+    </div>
+
+   
+</div>
+
+

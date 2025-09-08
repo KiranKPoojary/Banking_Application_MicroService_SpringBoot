@@ -1,0 +1,34 @@
+<div class="signupcontainer">
+
+    <h1>Register with us</h1>
+    <oj-form-layout
+     label-edge="start"
+  direction="column"
+  max-columns="1"
+  label-width="33%">
+        <oj-input-text label-hint="Username" required value="{{username}}"></oj-input-text>
+        <oj-input-text label-hint="First Name" required value="{{firstName}}"></oj-input-text>
+        <oj-input-text label-hint="Last Name" required value="{{lastName}}"></oj-input-text>
+        <oj-input-password label-hint="Password" required value="{{password}}"></oj-input-password>
+        <oj-input-text label-hint="Email" required value="{{email}}"></oj-input-text>
+        <oj-input-text label-hint="Phone Number" required value="{{phoneNumber}}"></oj-input-text>
+        <oj-text-area label-hint="Address" required value="{{address}}"></oj-text-area>
+    
+    
+        <div class="signup-button-container">
+        <oj-button id="signupButton" on-oj-action="[[signup]]">Sign Up</oj-button>
+        </div>
+
+    
+    </oj-form-layout>
+
+</div>
+
+<oj-dialog id="successDialog" dialog-title="Registration Successful" modality="modal">
+    <div slot="body" class="custom-dialog-box">
+        You have successfully registered! You can now log in with your credentials.
+    </div>
+    <div slot="footer">
+        <oj-button id="okButton" on-oj-action="[[goToLogin]]">OK</oj-button>
+    </div>
+</oj-dialog>

@@ -1,0 +1,188 @@
+
+
+<div id="bankLandingPage" class="landing-bg oj-flex oj-sm-flex-items-initial oj-sm-flex-wrap">
+    <!-- Image Slider Section -->
+   <div class="oj-flex-item oj-sm-12 oj-md-6 fade-in">
+      <div id="filmStripDiv" class="oj-panel oj-sm-margin-4x">
+          <oj-film-strip id="filmStrip" aria-label="Set of bankImages" arrow-placement="[[currentNavArrowPlacement]]"
+            max-items-per-page="1">
+            <oj-bind-for-each data="[[imageDataProvider]]">
+              <template data-oj-as="image">
+                <div class="slider-item">
+                  <img :src="[[image.data.url]]" :alt="[[image.data.alt]]" class="slider-image" />
+                </div>
+              </template>
+            </oj-bind-for-each>
+          </oj-film-strip>
+        </div>
+
+    </div>
+
+    <!-- Welcome Section -->
+    <div class="oj-flex-item oj-sm-12 oj-md-6 fade-in">
+        <div class="welcome-card">
+            <h1 class="welcome-title">
+                Welcome to <br>
+                <span style="color:#6A0DAD;">Smart Banking</span>
+            </h1>
+            <p class="welcome-text">
+                Manage your money effortlessly. From secure transactions to smart investments,
+                we provide everything you need to achieve financial freedom.
+            </p>
+            <div class="btn-box">
+                <oj-button chroming="solid" on-oj-action="[[goToLogin]]" style="background-color:#6A0DAD;color:white;font-weight:bold;">
+                    Login
+                </oj-button>
+                <p>
+                  New customer?
+                  <a href="?ojr=signup" style="color:#6A0DAD;font-weight:bold;">Open
+                    an
+                    Account</a>
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Key Features Section -->
+    <div class="oj-flex-item oj-sm-12 fade-in feature-section">
+        <h2>Key Features of Our Banking System</h2>
+        <div class="feature-grid">
+            <div class="feature-card hover-effect">
+                <span class="oj-ux-ico-lock"></span>
+                <h3>Secure Transactions</h3>
+                <p>End-to-end encrypted payments with fraud protection.</p>
+            </div>
+            <div class="feature-card hover-effect">
+                <span class="oj-ux-ico-chart-line"></span>
+                <h3>Smart Investments</h3>
+                <p>Grow your wealth with expert-backed investment tools.</p>
+            </div>
+            <div class="feature-card hover-effect">
+                <span class="oj-ux-ico-headset"></span>
+                <h3>24/7 Support</h3>
+                <p>We’re always here to assist with your banking needs.</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Testimonials Section -->
+    <div class="oj-flex-item oj-sm-12 fade-in testimonial-section">
+        <h2>What Our Customers Say</h2>
+        <oj-carousel id="testimonialCarousel" class="testimonial-carousel" autoplay-interval="4000">
+            <oj-carousel-item>
+                <div class="testimonial-card">
+                    <p>"Smart Banking makes my transactions effortless and secure."</p>
+                    <span>- Ramesh, Business Owner</span>
+                </div>
+            </oj-carousel-item>
+            <oj-carousel-item>
+                <div class="testimonial-card">
+                    <p>"Investing has never been this simple. I love the mobile app!"</p>
+                    <span>- Priya, Investor</span>
+                </div>
+            </oj-carousel-item>
+        </oj-carousel>
+    </div>
+
+    <!-- Contact Us Section -->
+    <div class="oj-flex-item oj-sm-12 fade-in contact-section">
+        <h2>Contact Us</h2>
+        <p>Need help? Reach out at: <strong>support@smartbanking.com</strong></p>
+        <p>Call us: <strong>1800-123-456</strong></p>
+    </div>
+</div>
+
+<style>
+    /* Background */
+.landing-bg {
+  background: #fff;
+  padding: 40px;
+  text-align: center;
+}
+
+/* Fade-in animation */
+.fade-in {
+  animation: fadeIn 0.8s ease-in-out;
+}
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* Carousel */
+.carousel-img {
+  width: 100%;
+  height: 400px;
+  border-radius: 16px;
+  object-fit: cover;
+}
+
+/* Welcome Card */
+.welcome-card {
+  background: linear-gradient(to right, #ffffff, rgb(137,137,226));
+  padding: 24px;
+  border-radius: 16px;
+  box-shadow: 0px 4px 15px rgba(0,0,0,0.1);
+}
+.welcome-title {
+  font-size: 2.5rem;
+  font-weight: bold;
+  margin-bottom: 16px;
+}
+.welcome-text {
+  font-size: 1rem;
+  margin: 20px 0;
+}
+.btn-box {
+  margin-top: 20px;
+}
+
+/* Features */
+.feature-section {
+  margin: 50px 0;
+}
+.feature-grid {
+  display: flex;
+  justify-content: center;
+  gap: 20px;
+  flex-wrap: wrap;
+}
+.feature-card {
+  background: rgb(59, 28, 69);
+  color: #fff;
+  width: 250px;
+  padding: 20px;
+  border-radius: 16px;
+  box-shadow: 0px 4px 15px rgba(0,0,0,0.1);
+  transition: transform 0.3s;
+}
+.feature-card:hover {
+  transform: scale(1.05);
+}
+
+/* Testimonials */
+.testimonial-section {
+  margin: 50px 0;
+}
+.testimonial-card {
+  background: rgba(255,255,255,0.9);
+  padding: 20px;
+  border-radius: 16px;
+  box-shadow: 0px 4px 15px rgba(0,0,0,0.1);
+  max-width: 500px;
+  margin: auto;
+}
+.testimonial-card p {
+  font-size: 1.2rem;
+  margin-bottom: 10px;
+}
+
+/* Contact */
+.contact-section {
+  background: #f0f0ff;
+  padding: 20px;
+  border-radius: 16px;
+  margin-top: 50px;
+}
+
+</style>
