@@ -16,9 +16,10 @@
 }
 
 .demo-oracle-icon {
+  
   width:137px;
-  height:18px;
-  content:url("images/oracle_logo.svg")
+  height:25px;
+  content:url("images/KK_logo_white.svg")
 }
 
 html:not([dir="rtl"]) .demo-oracle-icon {

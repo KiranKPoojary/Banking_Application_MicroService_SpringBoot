@@ -9,13 +9,13 @@
  * Your application specific code will go here
  */
 define(['knockout', 'ojs/ojcontext', 'ojs/ojmodule-element-utils', 'ojs/ojknockouttemplateutils', 'ojs/ojcorerouter', 'ojs/ojmodulerouter-adapter', 'ojs/ojknockoutrouteradapter', 'ojs/ojurlparamadapter', 'ojs/ojresponsiveutils', 'ojs/ojresponsiveknockoututils', 'ojs/ojarraydataprovider','utils/authJWT',
-        'ojs/ojdrawerpopup', 'ojs/ojmodule-element', 'ojs/ojknockout','ojs/ojdialog'],
+        'ojs/ojdrawerpopup', 'ojs/ojmodule-element', 'ojs/ojknockout','ojs/ojdialog','oj-c/avatar'],
   function(ko, Context, moduleUtils, KnockoutTemplateUtils, CoreRouter, ModuleRouterAdapter, KnockoutRouterAdapter, UrlParamAdapter, ResponsiveUtils, ResponsiveKnockoutUtils, ArrayDataProvider, AuthJWT) {
 
      function ControllerViewModel() {
        this.KnockoutTemplateUtils = KnockoutTemplateUtils;
 
-        var self = this;
+       var self = this;
        // Handle announcements sent when pages change, for Accessibility.
        this.manner = ko.observable("polite");
        this.message = ko.observable();
@@ -62,10 +62,11 @@ define(['knockout', 'ojs/ojcontext', 'ojs/ojmodule-element-utils', 'ojs/ojknocko
            path: "about",
            detail: { label: "About", iconClass: "oj-ux-ico-information-s" },
          },
-         { path: "employee-login",detail: { label: "Employee Login" } },
-         { path: "login" },
+         { path: "employee-login", detail: { label: "Employee Login" } },
+         { path: "login", detail: { label: " User Login" } },
          { path: "signup" },
-         {path : "logout" }
+         { path: "logout" },
+         { path: "user-dashboard", detail: { label: "user dashbaord" } },
        ];
 
        // Router setup
@@ -86,18 +87,22 @@ define(['knockout', 'ojs/ojcontext', 'ojs/ojmodule-element-utils', 'ojs/ojknocko
          keyAttributes: "path",
        });
 
-       
+       let isLoggedIn = ko.observable(false); // Observable for login state
+       let userRole = ko.observable(null); // Observable for user role
+       let username = ko.observable(null); // Observable for username
+       let Id = ko.observable(null); // Observable for user ID
 
-        let isLoggedIn = ko.observable(false); // Observable for login state
-        let userRole = ko.observable(null); // Observable for user role
+       self.isLoggedIn = isLoggedIn;
+       self.userRole = userRole;
+       self.username = username;
+       self.Id = Id;
 
-        self.isLoggedIn = isLoggedIn;
-        self.userRole = userRole;
-        window.app = self;
+       // Make the observables globally accessible
+       window.app = self;
 
-        // Check token validity on app load
+       // Check token validity on app load
        let token = localStorage.getItem("jwtToken");
-      
+
        console.log("Token from localStorage:", token);
 
        if (token && AuthJWT.isTokenValid(token)) {
@@ -108,13 +113,24 @@ define(['knockout', 'ojs/ojcontext', 'ojs/ojmodule-element-utils', 'ojs/ojknocko
              ? localStorage.getItem("role").toLowerCase()
              : null
          );
+         username(
+           localStorage.getItem("username")
+             ? localStorage.getItem("username")
+             : null
+         );
+         Id(
+          localStorage.getItem('Id')? localStorage.getItem('Id'):null
+         );
+         console.log("User role from localStorage:", userRole());
+         console.log("Username from localStorage:", username());
+          console.log("User ID from localStorage:", Id());
        } else {
          isLoggedIn(false);
          userRole(null);
+         username(null);
+         Id(null);
          localStorage.clear();
        }
-
-       
 
        console.log("User role in nav:", userRole());
 
@@ -124,7 +140,7 @@ define(['knockout', 'ojs/ojcontext', 'ojs/ojmodule-element-utils', 'ojs/ojknocko
              [
                { path: "home", detail: { label: "Home" } },
                { path: "employee-login", detail: { label: "Employee Login" } },
-               { path: "login", detail: { label: "Login" } },
+               { path: "login", detail: { label: " User Login" } },
              ],
              { keyAttributes: "path" }
            );
@@ -133,34 +149,32 @@ define(['knockout', 'ojs/ojcontext', 'ojs/ojmodule-element-utils', 'ojs/ojknocko
          if (userRole() === "customer" && isLoggedIn()) {
            return new ArrayDataProvider(
              [
-               { path: "dashboard", detail: { label: "Dashboard" } },
-               { path: "login", detail: { label: "Login" } },
-               { path: "logout", detail: { label: "Logout" }},
-              //  { path: "transfer", detail: { label: "Transfer" } },
-              //  { path: "deposit", detail: { label: "Deposit" } },
-              //  { path: "withdraw", detail: { label: "Withdraw" } },
-              //  { path: "profile", detail: { label: "Profile" } },
+               { path: "user-dashboard", detail: { label: "User Dashboard" } },
+               { path: "#", detail: { label: "Transfer" } },
+               { path: "#", detail: { label: "Deposit" } },
+               { path: "#", detail: { label: "Withdraw" } },
+               //  { path: "profile", detail: { label: "Profile" } },
              ],
              { keyAttributes: "path" }
            );
          }
 
-        //  if (userRole() === "employee") {
-        //    return new ArrayDataProvider(
-        //      [
-        //        {
-        //          path: "employee-dashboard",
-        //          detail: { label: "Employee Dashboard" },
-        //        },
-        //        {
-        //          path: "employee-register",
-        //          detail: { label: "Register Employee" },
-        //        },
-        //        { path: "manage-accounts", detail: { label: "Manage Accounts" } },
-        //      ],
-        //      { keyAttributes: "path" }
-        //    );
-        //  }
+         //  if (userRole() === "employee") {
+         //    return new ArrayDataProvider(
+         //      [
+         //        {
+         //          path: "employee-dashboard",
+         //          detail: { label: "Employee Dashboard" },
+         //        },
+         //        {
+         //          path: "employee-register",
+         //          detail: { label: "Register Employee" },
+         //        },
+         //        { path: "manage-accounts", detail: { label: "Manage Accounts" } },
+         //      ],
+         //      { keyAttributes: "path" }
+         //    );
+         //  }
        });
 
        // Drawer
@@ -178,61 +192,113 @@ define(['knockout', 'ojs/ojcontext', 'ojs/ojmodule-element-utils', 'ojs/ojknocko
 
        // Header
        // Application Name used in Branding Area
-       this.appName = ko.observable("App Name");
+       this.appName = ko.observable("KK's Bank");
        // User Info used in Global Navigation area
        this.userLogin = userRole();
 
+       //  this.username= username();
 
        //Header Signout
 
-              self.confirmLogout = function () {
-                console.log("Logging out...");
-                window.app.isLoggedIn(false);
-                window.app.userRole(null);
-                localStorage.clear();
-                console.log("Logged out successfully");
+       // self.confirmLogout = function () {
+       //   console.log("Logging out...");
+       //   window.app.isLoggedIn(false);
+       //   window.app.userRole(null);
+       //   window.app.username(null);
+       //   localStorage.clear();
+       //   console.log("Logged out successfully");
 
-                document.getElementById("logoutGlobalDialog").close();
-              };
+       //   document.getElementById("logoutGlobalDialog").close();
 
-              self.cancelLogout = function () {
-                console.log("Logout canceled");
-                // Router.rootInstance.go("dashboard");
-              };
+       //   CoreRouter.rootInstance.go({path: 'home'});
+       // };
 
-           self.openLogoutDialog = function () {
-            console.log("Opening logout dialog...");
-             const dialog = document.getElementById("logoutGlobalDialog");
-             if (dialog) {
-               setTimeout(() => {
-                 dialog.open();
-               }, 0); // Delay execution to allow upgrade
-             } else {
-               console.warn("logoutDialog not found in DOM.");
+       self.confirmLogout = function () {
+         console.log("Logging out...");
+
+         // Get user id & JWT token from local storage (or window.app if stored there)
+         let userId = localStorage.getItem("Id"); // adjust if you store id somewhere else
+         let token = localStorage.getItem("jwtToken"); // assuming JWT saved at login
+
+         if (!userId || !token) {
+           console.error("User ID or token missing");
+           return;
+         }
+
+         // Backend logout API
+         let url = `http://localhost:8085/user-service/api/v0/auth/logout/${userId}`;
+
+         fetch(url, {
+           method: "POST",
+           headers: {
+             "Content-Type": "application/json",
+             "Authorization" : `Bearer ${token}`,
+           },
+         })
+           .then((response) => {
+             if (!response.ok) {
+               throw new Error("Logout API failed");
              }
-           };
+             return response.text();
+           })
+           .then((data) => {
+             console.log("Backend logout success:", data);
 
+             // Clear session after backend success
+             window.app.isLoggedIn(false);
+             window.app.userRole(null);
+             window.app.username(null);
+             window.app.Id(null);
+             localStorage.clear();
 
+             console.log("Logged out successfully");
 
-              this.handleUserMenuAction = (event) => {
-                const action = event.detail.selectedValue;
-                console.log("User menu action:", action);
-                if (action === "out") {
-                  self.openLogoutDialog();
-                } else if (action === "pref") {
-                  // Handle Preferences action
-                  console.log("Preferences clicked");
-                }
-              };
+             document.getElementById("logoutGlobalDialog").close();
 
-        // self.logout = function () {
-        //   // Perform logout logic here
-        //   this.logoutDialog.open();
+             CoreRouter.rootInstance.go({ path: "home" });
+           })
+           .catch((error) => {
+             console.error("Error during logout:", error);
 
-        //   //   Router.rootInstance.go("login");
-        // };
+             // Still clear local session to avoid stuck state
+             window.app.isLoggedIn(false);
+             window.app.userRole(null);
+             window.app.username(null);
+             window.app.Id(null);
+             localStorage.clear();
 
-      
+             document.getElementById("logoutGlobalDialog").close();
+             CoreRouter.rootInstance.go({ path: "home" });
+           });
+       };
+
+       self.cancelLogout = function () {
+         console.log("Logout canceled");
+         // Router.rootInstance.go("dashboard");
+       };
+
+       self.openLogoutDialog = function () {
+         console.log("Opening logout dialog...");
+         const dialog = document.getElementById("logoutGlobalDialog");
+         if (dialog) {
+           setTimeout(() => {
+             dialog.open();
+           }, 0); // Delay execution to allow upgrade
+         } else {
+           console.warn("logoutDialog not found in DOM.");
+         }
+       };
+
+       this.handleUserMenuAction = (event) => {
+         const action = event.detail.selectedValue;
+         console.log("User menu action:", action);
+         if (action === "out") {
+           self.openLogoutDialog();
+         } else if (action === "pref") {
+           // Handle Preferences action
+           console.log("Preferences clicked");
+         }
+       };
 
        // Footer
        this.footerLinks = [

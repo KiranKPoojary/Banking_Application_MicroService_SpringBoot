@@ -1,0 +1,52 @@
+
+    <div class="oj-flex oj-sm-padding-4x">
+
+        <!-- Left Section -->
+        <div class="oj-sm-12 oj-md-8 oj-flex-item oj-sm-margin-2x">
+
+            <!-- Total Account Balance -->
+            <oj-card class="oj-sm-margin-2x">
+                <div class="oj-card-header">
+                    <h3>Total Balance</h3>
+                </div>
+                <div class="oj-card-content">
+                    <h2 style="color: green;">
+                        <oj-bind-text value="[[totalBalance]]"></oj-bind-text> ₹
+                    </h2>
+                </div>
+            </oj-card>
+
+            <!-- Last 5 Transactions -->
+            <oj-card class="oj-sm-margin-2x">
+                <div class="oj-card-header">
+                    <h3>Last 5 Transactions</h3>
+                </div>
+                <div class="oj-card-content">
+                    <oj-table id="txnTable" aria-label="Transaction Table" data="[[txnDataProvider]]" columns='[
+              {"headerText":"Date", "field":"date"},
+              {"headerText":"Description", "field":"desc"},
+              {"headerText":"Amount", "field":"amount"},
+              {"headerText":"Type", "field":"type"}
+            ]' style="max-height:200px; overflow:auto;">
+                    </oj-table>
+                </div>
+            </oj-card>
+
+        </div>
+
+        <!-- Right Section -->
+        <div class="oj-sm-12 oj-md-4 oj-flex-item oj-sm-margin-2x">
+
+            <!-- Spending by Category Pie Chart -->
+        <oj-chart id="spendingChart" type="pie" data="[[chartDataProvider]]" animation-on-display="auto"
+            animation-on-data-change="auto">
+            <template slot="itemTemplate" data-oj-as="item">
+                <oj-chart-item value="[[item.data.value]]" group-id="[[[item.data.category]]]" series-id="[[[item.data.category]]]">
+                </oj-chart-item>
+            </template>
+        </oj-chart>
+
+
+        </div>
+
+    </div>

@@ -95,24 +95,37 @@
               </oj-button>
             </div>
             <div class="oj-flex-bar-middle oj-sm-align-items-baseline">
-              <img class="oj-icon demo-oracle-icon" title="Oracle Logo" alt="Oracle Logo"></img>
-              <h1 class="oj-sm-only-hide oj-web-applayout-header-title" title="Application Name"><oj-bind-text value="[[appName]]"></oj-bind-text></h1>
+              <img class="oj-icon demo-oracle-icon" title="KKLogo" alt="KK Logo"></img>
+              <!-- <h1 class="oj-sm-only-hide oj-web-applayout-header-title" title="Application Name"><oj-bind-text value="[[appName]]"></oj-bind-text></h1> -->
             </div>
-            <div class="oj-flex-bar-end">
-              <!-- Responsive Toolbar -->
-              <oj-toolbar>
-                <oj-menu-button id="userMenu" display="[[smScreen() ? 'icons' : 'all']]" chroming="borderless">
-                  <span><oj-bind-text value="[[userLogin]]"></oj-bind-text></span>
-                  <span slot="endIcon" :class="[[{'oj-icon demo-appheader-avatar': smScreen(), 'oj-component-icon oj-button-menu-dropdown-icon': !smScreen()}]]"></span>
-                  <oj-menu id="menu1" slot="menu"  on-oj-menu-action="[[handleUserMenuAction]]">
-                    <oj-option id="pref" value="pref">Preferences</oj-option>
-                    <oj-option id="help" value="help">Help</oj-option>
-                    <oj-option id="about" value="about">About</oj-option>
-                    <oj-option id="out" value="out">Sign Out</oj-option>
-                  </oj-menu>
-                </oj-menu-button>
-              </oj-toolbar>
-            </div>
+
+            <oj-bind-if test="[[window.app.isLoggedIn]]">
+
+              <div class="oj-flex-bar-end">
+                <!-- Responsive Toolbar -->
+                <oj-toolbar>
+                  <oj-menu-button id="userMenu" display="[[smScreen() ? 'icons' : 'all']]" chroming="borderless">
+                    <span><B>Hi,<oj-bind-text value="[[username]]"></oj-bind-text></B></span>
+
+                    <oj-c-avatar background="green" size="xs" initials=[[username]] shape="square"
+                      ></oj-c-avatar>
+                    
+                    <!-- <span slot="endIcon"
+                      :class="[[{'oj-icon demo-appheader-avatar': smScreen(), 'oj-component-icon oj-button-menu-dropdown-icon': !smScreen()}]]"></span> -->
+                    <oj-menu id="menu1" slot="menu" on-oj-menu-action="[[handleUserMenuAction]]">
+                      <oj-option id="pref" value="pref">Preferences</oj-option>
+                      <oj-option id="help" value="help">Help</oj-option>
+                      <oj-option id="about" value="about">About</oj-option>
+                      <oj-option id="out" value="out">Sign Out</oj-option>
+                    </oj-menu>
+                  </oj-menu-button>
+                </oj-toolbar>
+              </div>
+
+
+
+            </oj-bind-if>
+            
           </div>
           <div role="navigation" class="oj-web-applayout-max-width oj-web-applayout-navbar">
             <oj-tab-bar id="navTabBar" class="oj-sm-only-hide oj-md-condense oj-md-justify-content-flex-end"
@@ -135,7 +148,7 @@
               <oj-button id="cancelLogoutButton" on-oj-action="[[cancelLogout]]">No</oj-button>
             </div>
           </oj-dialog>
-          
+
         <footer class="oj-web-applayout-footer" role="contentinfo">
           <div class="oj-web-applayout-footer-item oj-web-applayout-max-width">
             <ul>

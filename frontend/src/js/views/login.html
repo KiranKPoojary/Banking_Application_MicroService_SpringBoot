@@ -9,8 +9,16 @@
     </oj-form-layout>
 
     <div class="register-link">
-        <span>New user? <a href="#" id="registerLink">Register</a></span>
+        <span>New user? <a href="?ojr=signup" id="registerLink">Register</a></span>
     </div>
+
+
+    <!-- Error message display -->
+    <oj-bind-if test="[[errorMessage()]]">
+        <div class="oj-sm-margin-2x-top" style="color: red; font-weight: bold;">
+            <oj-bind-text value="[[errorMessage]]"></oj-bind-text>
+        </div>
+    </oj-bind-if>
 
    
 </div>
