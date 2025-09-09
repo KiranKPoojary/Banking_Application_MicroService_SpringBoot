@@ -65,7 +65,6 @@ define(['knockout', 'ojs/ojcontext', 'ojs/ojmodule-element-utils', 'ojs/ojknocko
          { path: "employee-login", detail: { label: "Employee Login" } },
          { path: "login", detail: { label: " User Login" } },
          { path: "signup" },
-         { path: "logout" },
          { path: "user-dashboard", detail: { label: "user dashbaord" } },
        ];
 
@@ -119,7 +118,7 @@ define(['knockout', 'ojs/ojcontext', 'ojs/ojmodule-element-utils', 'ojs/ojknocko
              : null
          );
          Id(
-          localStorage.getItem('Id')? localStorage.getItem('Id'):null
+          localStorage.getItem('Id')? localStorage.getItem('Id'): null
          );
          console.log("User role from localStorage:", userRole());
          console.log("Username from localStorage:", username());
@@ -159,22 +158,58 @@ define(['knockout', 'ojs/ojcontext', 'ojs/ojmodule-element-utils', 'ojs/ojknocko
            );
          }
 
-         //  if (userRole() === "employee") {
-         //    return new ArrayDataProvider(
-         //      [
-         //        {
-         //          path: "employee-dashboard",
-         //          detail: { label: "Employee Dashboard" },
-         //        },
-         //        {
-         //          path: "employee-register",
-         //          detail: { label: "Register Employee" },
-         //        },
-         //        { path: "manage-accounts", detail: { label: "Manage Accounts" } },
-         //      ],
-         //      { keyAttributes: "path" }
-         //    );
-         //  }
+          if (userRole() === "admin") {
+            return new ArrayDataProvider(
+              [
+                {
+                  path: "#",
+                  detail: { label: "Admin Dashboard" },
+                },
+                {
+                  path: "#",
+                  detail: { label: "Manage Employee" },
+                },
+                { path: "#", detail: { label: "Manage Accounts" } },
+                { path: "#", detail: { label: "Manage User" } },
+                { path: "#", detail: { label: "Manage Notification" } },
+              ],
+              { keyAttributes: "path" }
+            );
+          }
+
+          if (userRole() === "manager") {
+            return new ArrayDataProvider(
+              [
+                {
+                  path: "#",
+                  detail: { label: "Manager Dashboard" },
+                },
+                {
+                  path: "#",
+                  detail: { label: "Approve Account" },
+                },
+                { path: "#", detail: { label: "Manage User" } },
+              ],
+              { keyAttributes: "path" }
+            );
+          }
+
+          if (userRole() === "executive") {
+            return new ArrayDataProvider(
+              [
+                {
+                  path: "#",
+                  detail: { label: "Executive Dashboard" },
+                },
+                {
+                  path: "#",
+                  detail: { label: "Manage User" },
+                },
+                { path: "#", detail: { label: "Manage Accounts" } },
+              ],
+              { keyAttributes: "path" }
+            );
+          }
        });
 
        // Drawer

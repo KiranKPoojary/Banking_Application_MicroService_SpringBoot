@@ -2,11 +2,12 @@ define([
   "knockout",
   "ojs/ojcontext",
   "ojs/ojcorerouter",
+  "utils/authJWT",
   "ojs/ojbootstrap",
   "ojs/ojformlayout",
   "ojs/ojinputtext",
   "ojs/ojbutton",
-], function (ko, Context, CoreRouter) {
+], function (ko, Context, CoreRouter,authJWT) {
   function LoginViewModel() {
     var self = this;
 
@@ -14,6 +15,7 @@ define([
     self.username = ko.observable("");
     self.password = ko.observable("");
     self.errorMessage = ko.observable("");
+    self.router=CoreRouter.rootInstance;
 
     self.login = function () {
       self.errorMessage("");
@@ -24,6 +26,7 @@ define([
             "Content-Type": "application/json",
           },
           body: JSON.stringify({
+            employeeId:self.empid(),
             username: self.username(),
             password: self.password(),
           }),
@@ -39,9 +42,32 @@ define([
 
             if (data.token) {
               console.log("Login successful, token:", data.token);
-              localStorage.setItem("jwtToken", data.token);
-            }
-            CoreRouter.rootInstance.go("incidents");
+              localStorage.setItem('jwtToken', data.token);
+
+                        const payload = authJWT.parseJwt(data.token);
+                        console.log('JWT Payload:', payload);
+                        if (payload && payload.role) {
+                            localStorage.setItem("role", payload.role);
+                            localStorage.setItem("username", payload.username);
+                            localStorage.setItem("Id", payload.Id);
+                            console.log("Logged in as:", payload.role);
+                            console.log("Username:", payload.username);
+                            console.log("User ID:", payload.Id);
+                            if(window.app){
+                                window.app.isLoggedIn(true);
+                                window.app.userRole(payload.role.toLowerCase());
+                                window.app.username(payload.username);
+                                window.app.Id(payload.Id);
+                                console.log("User role set to:", window.app.userRole());
+                                console.log("Username set to:", window.app.username());
+                                console.log("User ID set to:", window.app.Id());
+                                console.log("Islogedin", window.app.isLoggedIn());
+                            }
+
+                            //go to dashboard based on role -User dashboard
+                            self.router.go({ path: "dashboard" });
+                        }
+                    }
           })
           .catch((error) => {
             self.errorMessage("Login failed: " + error.message);
