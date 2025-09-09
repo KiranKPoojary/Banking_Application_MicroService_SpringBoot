@@ -1,11 +1,12 @@
 define([
   "knockout",
   "ojs/ojcorerouter",
+  "ojs/ojarraydataprovider",
   "ojs/ojformlayout",
   "ojs/ojinputtext",
-  "ojs/ojselectsingle",
+  "oj-c/select-single",
   "ojs/ojdialog",
-], function (ko, CoreRouter) {
+], function (ko, CoreRouter, ArrayDataProvider) {
   function SignupViewModel() {
     var self = this;
 
@@ -16,19 +17,19 @@ define([
     self.email = ko.observable("");
     self.phoneNumber = ko.observable("");
     self.address = ko.observable("");
-    // self.role = ko.observable("");
+    self.role = ko.observable("");
     self.errorMessage = ko.observable("");
 
-    // const roleData = [
-    //   { value: "CUSTOMER", label: "Customer" },
-    //   { value: "EMPLOYEE", label: "Employee" },
-    //   { value: "ADMIN", label: "Admin" },
-    // ];
+    const roleData = [
+      { value: "CUSTOMER", label: "Customer" },
+      { value: "EMPLOYEE", label: "Employee" },
+      { value: "ADMIN", label: "Admin" },
+    ];
 
-    // this.roleOptions = new ArrayDataProvider(roleData, {
-    //   keyAttributes: "value",
-    //   textFilterAttributes: ["label"],
-    // });
+    this.roleOptions = new ArrayDataProvider(roleData, {
+      keyAttributes: "value",
+      textFilterAttributes: ["label"],
+    });
 
     self.signup = function () {
       self.errorMessage("");
@@ -71,10 +72,8 @@ define([
       console.log("Navigating to login page");
       CoreRouter.rootInstance.go("login"); // Navigate to login route
     };
-
   }
 
-  
   return SignupViewModel;
 });
 

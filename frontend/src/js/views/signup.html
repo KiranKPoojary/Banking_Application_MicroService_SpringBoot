@@ -13,8 +13,10 @@
         <oj-input-text label-hint="Email" required value="{{email}}"></oj-input-text>
         <oj-input-text label-hint="Phone Number" required value="{{phoneNumber}}"></oj-input-text>
         <oj-text-area label-hint="Address" required value="{{address}}"></oj-text-area>
-    
-    
+        <oj-c-select-single id="roleSelect" label-hint="Your Role" data="[[roleOptions]]" value="{{role}}" item-text="label"
+            required="true">
+        </oj-c-select-single>
+
         <div class="signup-button-container">
         <oj-button id="signupButton" on-oj-action="[[signup]]">Sign Up</oj-button>
         </div>

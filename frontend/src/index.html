@@ -104,7 +104,7 @@
                 <oj-menu-button id="userMenu" display="[[smScreen() ? 'icons' : 'all']]" chroming="borderless">
                   <span><oj-bind-text value="[[userLogin]]"></oj-bind-text></span>
                   <span slot="endIcon" :class="[[{'oj-icon demo-appheader-avatar': smScreen(), 'oj-component-icon oj-button-menu-dropdown-icon': !smScreen()}]]"></span>
-                  <oj-menu id="menu1" slot="menu">
+                  <oj-menu id="menu1" slot="menu"  on-oj-menu-action="[[handleUserMenuAction]]">
                     <oj-option id="pref" value="pref">Preferences</oj-option>
                     <oj-option id="help" value="help">Help</oj-option>
                     <oj-option id="about" value="about">About</oj-option>
@@ -125,6 +125,17 @@
         </header>
         <oj-module role="main" class="oj-web-applayout-max-width oj-web-applayout-content" config="[[moduleAdapter.koObservableConfig]]">
         </oj-module>
+
+          <oj-dialog id="logoutGlobalDialog" dialog-title="Confirm Logout" modality="modal">
+            <div slot="body" class="custom-dialog-box">
+              Are you sure you want to logout?
+            </div>
+            <div slot="footer">
+              <oj-button id="confirmLogoutButton" on-oj-action="[[confirmLogout]]">Yes</oj-button>
+              <oj-button id="cancelLogoutButton" on-oj-action="[[cancelLogout]]">No</oj-button>
+            </div>
+          </oj-dialog>
+          
         <footer class="oj-web-applayout-footer" role="contentinfo">
           <div class="oj-web-applayout-footer-item oj-web-applayout-max-width">
             <ul>
@@ -145,6 +156,9 @@
         </footer>
       </div>
     </div>
+
+  
+   
 
     <!-- This injects script tags for the main javascript files -->
 		<!-- injector:scripts -->

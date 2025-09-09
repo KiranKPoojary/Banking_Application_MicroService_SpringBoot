@@ -8,13 +8,14 @@
 /*
  * Your application specific code will go here
  */
-define(['knockout', 'ojs/ojcontext', 'ojs/ojmodule-element-utils', 'ojs/ojknockouttemplateutils', 'ojs/ojcorerouter', 'ojs/ojmodulerouter-adapter', 'ojs/ojknockoutrouteradapter', 'ojs/ojurlparamadapter', 'ojs/ojresponsiveutils', 'ojs/ojresponsiveknockoututils', 'ojs/ojarraydataprovider',
-        'ojs/ojdrawerpopup', 'ojs/ojmodule-element', 'ojs/ojknockout'],
-  function(ko, Context, moduleUtils, KnockoutTemplateUtils, CoreRouter, ModuleRouterAdapter, KnockoutRouterAdapter, UrlParamAdapter, ResponsiveUtils, ResponsiveKnockoutUtils, ArrayDataProvider) {
+define(['knockout', 'ojs/ojcontext', 'ojs/ojmodule-element-utils', 'ojs/ojknockouttemplateutils', 'ojs/ojcorerouter', 'ojs/ojmodulerouter-adapter', 'ojs/ojknockoutrouteradapter', 'ojs/ojurlparamadapter', 'ojs/ojresponsiveutils', 'ojs/ojresponsiveknockoututils', 'ojs/ojarraydataprovider','utils/authJWT',
+        'ojs/ojdrawerpopup', 'ojs/ojmodule-element', 'ojs/ojknockout','ojs/ojdialog'],
+  function(ko, Context, moduleUtils, KnockoutTemplateUtils, CoreRouter, ModuleRouterAdapter, KnockoutRouterAdapter, UrlParamAdapter, ResponsiveUtils, ResponsiveKnockoutUtils, ArrayDataProvider, AuthJWT) {
 
      function ControllerViewModel() {
        this.KnockoutTemplateUtils = KnockoutTemplateUtils;
 
+        var self = this;
        // Handle announcements sent when pages change, for Accessibility.
        this.manner = ko.observable("polite");
        this.message = ko.observable();
@@ -61,8 +62,10 @@ define(['knockout', 'ojs/ojcontext', 'ojs/ojmodule-element-utils', 'ojs/ojknocko
            path: "about",
            detail: { label: "About", iconClass: "oj-ux-ico-information-s" },
          },
+         { path: "employee-login",detail: { label: "Employee Login" } },
          { path: "login" },
          { path: "signup" },
+         {path : "logout" }
        ];
 
        // Router setup
@@ -79,55 +82,86 @@ define(['knockout', 'ojs/ojcontext', 'ojs/ojmodule-element-utils', 'ojs/ojknocko
 
        // Setup the navDataProvider with the routes, excluding the first redirected
        // route.
-       this.navDataProvider = new ArrayDataProvider(navData.slice(1, 6), {
+       this.navDataProvider = new ArrayDataProvider(navData.slice(1, 7), {
          keyAttributes: "path",
        });
 
-       // var self = this;
-       // let isLoggedIn = ko.observable(false); // Set this after successful login
-       // let userRole = ko.observable("user"); // or 'employee'
+       
 
-       // self.navDataProvider = ko.computed(() => {
-       //   if (!isLoggedIn()) {
-       //     return new ArrayDataProvider(
-       //       [
-       //         { path: "login", detail: { label: "Login" } },
-       //         { path: "register", detail: { label: "Register" } },
-       //       ],
-       //       { keyAttributes: "path" }
-       //     );
-       //   }
+        let isLoggedIn = ko.observable(false); // Observable for login state
+        let userRole = ko.observable(null); // Observable for user role
 
-       //   if (userRole() === "user") {
-       //     return new ArrayDataProvider(
-       //       [
-       //         { path: "dashboard", detail: { label: "Dashboard" } },
-       //         { path: "transfer", detail: { label: "Transfer" } },
-       //         { path: "deposit", detail: { label: "Deposit" } },
-       //         { path: "withdraw", detail: { label: "Withdraw" } },
-       //         { path: "profile", detail: { label: "Profile" } },
-       //       ],
-       //       { keyAttributes: "path" }
-       //     );
-       //   }
+        self.isLoggedIn = isLoggedIn;
+        self.userRole = userRole;
+        window.app = self;
 
-       //   if (userRole() === "employee") {
-       //     return new ArrayDataProvider(
-       //       [
-       //         {
-       //           path: "employee-dashboard",
-       //           detail: { label: "Employee Dashboard" },
-       //         },
-       //         {
-       //           path: "employee-register",
-       //           detail: { label: "Register Employee" },
-       //         },
-       //         { path: "manage-accounts", detail: { label: "Manage Accounts" } },
-       //       ],
-       //       { keyAttributes: "path" }
-       //     );
-       //   }
-       // });
+        // Check token validity on app load
+       let token = localStorage.getItem("jwtToken");
+      
+       console.log("Token from localStorage:", token);
+
+       if (token && AuthJWT.isTokenValid(token)) {
+         isLoggedIn(true);
+         console.log("Token is valid");
+         userRole(
+           localStorage.getItem("role")
+             ? localStorage.getItem("role").toLowerCase()
+             : null
+         );
+       } else {
+         isLoggedIn(false);
+         userRole(null);
+         localStorage.clear();
+       }
+
+       
+
+       console.log("User role in nav:", userRole());
+
+       self.navDataProvider = ko.computed(() => {
+         if (!isLoggedIn()) {
+           return new ArrayDataProvider(
+             [
+               { path: "home", detail: { label: "Home" } },
+               { path: "employee-login", detail: { label: "Employee Login" } },
+               { path: "login", detail: { label: "Login" } },
+             ],
+             { keyAttributes: "path" }
+           );
+         }
+
+         if (userRole() === "customer" && isLoggedIn()) {
+           return new ArrayDataProvider(
+             [
+               { path: "dashboard", detail: { label: "Dashboard" } },
+               { path: "login", detail: { label: "Login" } },
+               { path: "logout", detail: { label: "Logout" }},
+              //  { path: "transfer", detail: { label: "Transfer" } },
+              //  { path: "deposit", detail: { label: "Deposit" } },
+              //  { path: "withdraw", detail: { label: "Withdraw" } },
+              //  { path: "profile", detail: { label: "Profile" } },
+             ],
+             { keyAttributes: "path" }
+           );
+         }
+
+        //  if (userRole() === "employee") {
+        //    return new ArrayDataProvider(
+        //      [
+        //        {
+        //          path: "employee-dashboard",
+        //          detail: { label: "Employee Dashboard" },
+        //        },
+        //        {
+        //          path: "employee-register",
+        //          detail: { label: "Register Employee" },
+        //        },
+        //        { path: "manage-accounts", detail: { label: "Manage Accounts" } },
+        //      ],
+        //      { keyAttributes: "path" }
+        //    );
+        //  }
+       });
 
        // Drawer
        self.sideDrawerOn = ko.observable(false);
@@ -146,7 +180,59 @@ define(['knockout', 'ojs/ojcontext', 'ojs/ojmodule-element-utils', 'ojs/ojknocko
        // Application Name used in Branding Area
        this.appName = ko.observable("App Name");
        // User Info used in Global Navigation area
-       this.userLogin = ko.observable("john.hancock@oracle.com");
+       this.userLogin = userRole();
+
+
+       //Header Signout
+
+              self.confirmLogout = function () {
+                console.log("Logging out...");
+                window.app.isLoggedIn(false);
+                window.app.userRole(null);
+                localStorage.clear();
+                console.log("Logged out successfully");
+
+                document.getElementById("logoutGlobalDialog").close();
+              };
+
+              self.cancelLogout = function () {
+                console.log("Logout canceled");
+                // Router.rootInstance.go("dashboard");
+              };
+
+           self.openLogoutDialog = function () {
+            console.log("Opening logout dialog...");
+             const dialog = document.getElementById("logoutGlobalDialog");
+             if (dialog) {
+               setTimeout(() => {
+                 dialog.open();
+               }, 0); // Delay execution to allow upgrade
+             } else {
+               console.warn("logoutDialog not found in DOM.");
+             }
+           };
+
+
+
+              this.handleUserMenuAction = (event) => {
+                const action = event.detail.selectedValue;
+                console.log("User menu action:", action);
+                if (action === "out") {
+                  self.openLogoutDialog();
+                } else if (action === "pref") {
+                  // Handle Preferences action
+                  console.log("Preferences clicked");
+                }
+              };
+
+        // self.logout = function () {
+        //   // Perform logout logic here
+        //   this.logoutDialog.open();
+
+        //   //   Router.rootInstance.go("login");
+        // };
+
+      
 
        // Footer
        this.footerLinks = [
@@ -178,6 +264,9 @@ define(['knockout', 'ojs/ojcontext', 'ojs/ojmodule-element-utils', 'ojs/ojknocko
          },
        ];
      }
+
+
+
      // release the application bootstrap busy state
      Context.getPageContext().getBusyContext().applicationBootstrapComplete();
 
