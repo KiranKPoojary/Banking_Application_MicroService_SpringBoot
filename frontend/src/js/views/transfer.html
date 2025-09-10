@@ -1,0 +1,90 @@
+<div class="oj-flex oj-sm-justify-content-center oj-sm-margin-4x">
+    <div class="oj-sm-12 oj-md-8 oj-lg-6 oj-panel oj-sm-padding-6x oj-border-radius-md">
+
+        <h2>Fund Transfer</h2>
+
+        <oj-bind-if test="[[hasAccounts()]]">
+
+        <oj-form-layout class="oj-sm-margin-4x-top" label-edge="start" label-width="150px">
+
+        <!-- From Account Dropdown -->
+        <oj-select-single label-hint="From Account" data="[[userAccountsDP]]"  required value="{{fromAccount}}"
+            item-text="accountNumber" value="accountNumber">
+        </oj-select-single>
+
+        <!-- To Account -->
+        <oj-input-text label-hint="To Account Number" required value="{{toAccount}}"></oj-input-text>
+
+        <!-- Transaction Source -->
+        <oj-select-single label-hint="Transfer Method" data="[[transactionMethodsDP]]" value="{{transactionSource}}">
+        </oj-select-single>
+
+        <!-- Amount -->
+        <oj-input-number label-hint="Amount (₹)" required value="{{amount}}"></oj-input-number>
+
+        <!-- Description -->
+        <oj-input-text label-hint="Description" required value="{{description}}"></oj-input-text>
+
+        <!-- Submit -->
+        <oj-button on-oj-action="[[makeTransfer]]" class="oj-sm-margin-3x-top oj-button-confirm">
+            Transfer
+        </oj-button>
+
+        </oj-form-layout>
+        </oj-bind-if>
+
+
+
+
+
+        <!-- Show this if no accounts exist -->
+        <oj-bind-if test="[[!hasAccounts()]]">
+            <div class="oj-panel oj-sm-padding-6x oj-sm-margin-4x oj-bg-neutral-30
+               oj-border-radius-md oj-text-align-center">
+                <h3 class="oj-typography-heading-sm oj-text-color-danger">No accounts available</h3>
+                <p>You don’t have any accounts to make transfers. Please open an account first.</p>
+            </div>
+        </oj-bind-if>
+
+    </div>
+</div>
+
+
+<oj-bind-if test="[[transferSuccess()]]">
+    <div class="oj-flex oj-sm-justify-content-center oj-sm-margin-4x">
+        <div
+            class="oj-sm-12 oj-md-8 oj-lg-6 oj-panel oj-sm-padding-6x oj-border-radius-md oj-bg-neutral-0 oj-box-shadow-md">
+
+            <h2 class="oj-typography-heading-md oj-text-color-success">✅ Transfer Successful</h2>
+            <p class="oj-typography-body-md">Transaction ID:
+                <strong><oj-bind-text value="[[transferResponse().transactionId]]"></oj-bind-text></strong>
+            </p>
+            <p>Amount: ₹<oj-bind-text value="[[transferResponse().amount]]"></oj-bind-text></p>
+            <p>From: <oj-bind-text value="[[transferResponse().fromaccount.accountNumber]]"></oj-bind-text>
+                (Balance: ₹<oj-bind-text value="[[transferResponse().fromaccount.balance]]"></oj-bind-text>)</p>
+            <p>To: <oj-bind-text value="[[transferResponse().toaccount.accountNumber]]"></oj-bind-text>
+            <p>Status: <span class="oj-text-color-success"><oj-bind-text
+                        value="[[transferResponse().status]]"></oj-bind-text></span></p>
+            <p>
+                Date:
+                <oj-bind-text value="[[formatDate(transferResponse().transactionDate)]]"></oj-bind-text> </oj-bind-text>
+            </p>
+            <p>Description: <oj-bind-text value="[[transferResponse().description]]"></oj-bind-text></p>
+
+            <!-- Ledger entries table -->
+            <oj-c-table data="[[ledgerDataProvider]]" class="oj-sm-margin-4x-top" columns='[
+          {"headerText":"Entry Type","field":"entryType"},
+          {"headerText":"Amount","field":"amount"},
+          {"headerText":"Description","field":"description"},
+          {"headerText":"Date","field":"entryDate"}
+        ]'>
+            </oj-c-table>
+
+            <!-- Action Buttons -->
+            <div class="oj-sm-margin-4x-top">
+                <oj-button on-oj-action="[[makeAnotherTransfer]]">Make Another Transfer</oj-button>
+                <oj-button on-oj-action="[[goToAccounts]]" chroming="outlined">Back to Accounts</oj-button>
+            </div>
+        </div>
+    </div>
+</oj-bind-if>

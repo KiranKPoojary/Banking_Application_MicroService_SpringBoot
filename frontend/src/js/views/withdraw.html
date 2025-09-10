@@ -1,0 +1,96 @@
+
+<div class="oj-flex oj-sm-justify-content-center oj-sm-margin-4x">
+    <div class="oj-sm-12 oj-md-8 oj-lg-6 oj-panel oj-sm-padding-6x oj-border-radius-md">
+        <h2>Withdraw Funds</h2>
+
+        <!-- If accounts exist -->
+        <oj-bind-if test="[[hasAccounts()]]">
+            <oj-form-layout>
+                <oj-select-single label-hint="Account" required value="{{accountNumber}}" data="[[userAccountsDP]]"
+                    item-text="accountNumber">
+                </oj-select-single>
+
+                <oj-input-number label-hint="Amount" required value="{{amount}}"></oj-input-number>
+
+                <oj-input-text label-hint="Description" required value="{{description}}"></oj-input-text>
+
+                <oj-button on-oj-action="[[makeWithdrawal]]">Withdraw</oj-button>
+            </oj-form-layout>
+        </oj-bind-if>
+
+        <!-- If no accounts -->
+        <oj-bind-if test="[[!hasAccounts()]]">
+            <div class="oj-panel oj-sm-padding-6x oj-sm-margin-4x oj-bg-neutral-30
+               oj-border-radius-md oj-text-align-center">
+                <h3 class="oj-typography-heading-sm oj-text-color-danger">No accounts available</h3>
+                <p>You don’t have any accounts to withdraw from. Please open an account first.</p>
+            </div>
+        </oj-bind-if>
+
+       
+
+       
+
+    </div>
+</div>
+
+
+<oj-bind-if test="[[withdrawSuccess()]]">
+    <div class="oj-flex oj-sm-justify-content-center oj-sm-margin-4x">
+        <div
+            class="oj-sm-12 oj-md-8 oj-lg-6 oj-panel oj-sm-padding-6x oj-border-radius-md oj-bg-neutral-0 oj-box-shadow-md">
+
+            <h2 class="oj-typography-heading-md oj-text-color-success">✅ Withdrawal Successful</h2>
+            <p class="oj-typography-body-md">Transaction ID:
+                <strong><oj-bind-text value="[[withdrawResponse().transactionId]]"></oj-bind-text></strong>
+            </p>
+            <p>Amount: ₹<oj-bind-text value="[[withdrawResponse().amount]]"></oj-bind-text></p>
+            <p> Balance: ₹<oj-bind-text value="[[withdrawResponse().fromaccount.balance]]"></oj-bind-text></p>
+            <p>Status: <span class="oj-text-color-success"><oj-bind-text
+                        value="[[withdrawResponse().status]]"></oj-bind-text></span></p>
+            <p>
+                Date:
+                <oj-bind-text value="[[formatDate(withdrawResponse().transactionDate)]]"></oj-bind-text> </oj-bind-text>
+            </p>
+            <p>Description: <oj-bind-text value="[[withdrawResponse().description]]"></oj-bind-text></p>
+
+            <!-- Ledger entries table -->
+            <oj-c-table data="[[ledgerDataProvider]]" class="oj-sm-margin-4x-top" columns='[
+          {"headerText":"Entry Type","field":"entryType"},
+          {"headerText":"Amount","field":"amount"},
+          {"headerText":"Description","field":"description"},
+          {"headerText":"Date","field":"entryDate"}
+        ]'>
+            </oj-c-table>
+
+            <!-- Action Buttons -->
+            <div class="oj-sm-margin-4x-top">
+                <oj-button on-oj-action="[[makeAnotherWithdrawal]]">Make Another Transfer</oj-button>
+                <oj-button on-oj-action="[[goToAccounts]]" chroming="outlined">Back to Accounts</oj-button>
+            </div>
+        </div>
+    </div>
+</oj-bind-if>
+
+
+
+
+
+
+<!-- Show success result -->
+<!-- <oj-bind-if test="[[withdrawSuccess()]]">
+    <div class="oj-panel oj-sm-margin-4x oj-sm-padding-4x oj-bg-success-30">
+        <h3>Withdrawal Successful</h3>
+        <p>Transaction ID: <oj-bind-text value="[[withdrawResponse().transactionId]]"></oj-bind-text></p>
+        <p>Amount : ₹ <oj-bind-text value="[[withdrawResponse().amount]]"></oj-bind-text></p>
+        <p>Date: <oj-bind-text value="[[formatDate(withdrawResponse().transactionDate)]]"></oj-bind-text></p>
+        <p>Balance: ₹ <oj-bind-text value="[[withdrawResponse().balance]]"></oj-bind-text></p>
+        <p>Status: <span class="oj-text-color-success"><oj-bind-text
+                    value="[[withdrawResponse().status]]"></oj-bind-text></span></p>
+        <oj-button on-oj-action="[[makeAnotherWithdrawal]]">Make Another Withdrawal</oj-button>
+        <oj-button on-oj-action="[[goToAccounts]]">Back to Accounts</oj-button>
+    </div>
+</oj-bind-if> -->
+
+
+<!-- Withdraw Success Dialog -->

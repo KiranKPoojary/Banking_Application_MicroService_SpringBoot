@@ -53,7 +53,7 @@ public class AccountServiceImpl implements AccountService {
     public Account createAccount(AccountDto request) {
         try {
             // Call User Service via Feign to validate user
-            UserDto user = userClient.getUserById(request.getUserId());
+            UserDto user = userClient.getUserById(request.getUserId(),"Kiran@1234_Notification");
             if (user == null) {
                 throw new UserNotFoundException("User not found with id: " + request.getUserId());
             }

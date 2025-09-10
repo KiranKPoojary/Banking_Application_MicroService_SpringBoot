@@ -154,7 +154,7 @@ public class TransactionServiceImpl implements TransactionService {
     }
 
     private void validateUser(Long userId) {
-        UserDto userresponse= userClient.getUserById(userId);
+        UserDto userresponse= userClient.getUserById(userId,"Kiran@1234_Notification");
         if(userresponse==null){
             throw new RuntimeException("User not found in UserService with id: " + userId);
         }

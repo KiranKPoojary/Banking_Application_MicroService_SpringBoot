@@ -1,0 +1,70 @@
+<div class="oj-flex oj-sm-justify-content-center oj-sm-margin-4x">
+    <div class="oj-sm-12 oj-md-8 oj-lg-6 oj-panel oj-sm-padding-6x oj-border-radius-md">
+    <h2 class="oj-typography-heading-lg oj-sm-margin-4x-bottom oj-text-color-primary">
+      My Accounts
+    </h2>
+
+    <!-- Show accounts if available -->
+    <oj-bind-if test="[[hasAccounts()]]">
+      <div id="cardviewContainer">
+        <oj-c-card-view
+          id="cardview"
+          aria-label="User Accounts"
+          data="[[accountDataProvider]]"
+          class="oj-sm-margin-4x-bottom"
+        >
+          <template slot="itemTemplate" data-oj-as="item">
+            <div
+              class="oj-panel oj-sm-padding-4x oj-sm-margin-2x
+                     oj-bg-neutral-0 oj-border-radius-md
+                     oj-box-shadow-sm oj-text-color-primary oj-bg-neutral-30"
+            >
+              <h3 class="oj-typography-heading-sm oj-sm-margin-2x-bottom">
+                Account Number:
+                <span class="oj-typography-body-md oj-text-color-secondary">
+                  <oj-bind-text value="[[item.data.accountNumber]]"></oj-bind-text>
+                </span>
+              </h3>
+              <p class="oj-typography-body-md">
+                <strong>Type:</strong>
+                <oj-bind-text value="[[item.data.accountType]]"></oj-bind-text>
+              </p>
+              <p class="oj-typography-body-md">
+                <strong>Balance:</strong>
+                <span class="oj-text-color-success">
+                  ₹<oj-bind-text value="[[item.data.balance]]"></oj-bind-text>
+                </span>
+              </p>
+              <p class="oj-typography-body-md">
+                <strong>Status:</strong>
+                <span class="oj-text-color-warning">
+                  <oj-bind-text value="[[item.data.status]]"></oj-bind-text>
+                </span>
+              </p>
+              <p class="oj-typography-body-sm oj-text-color-tertiary">
+                <strong>Created:</strong>
+                <oj-bind-text value="[[item.data.createdAt]]"></oj-bind-text>
+              </p>
+            </div>
+          </template>
+        </oj-c-card-view>
+      </div>
+    </oj-bind-if>
+
+    <!-- Show "no accounts" message if none exist -->
+    <oj-bind-if test="[[!hasAccounts()]]">
+      <div
+        class="oj-panel oj-sm-padding-6x oj-sm-margin-4x oj-bg-neutral-30
+               oj-border-radius-md oj-text-align-center"
+      >
+        <h3 class="oj-typography-heading-sm oj-text-color-danger">
+          No accounts found.
+        </h3>
+        <p class="oj-typography-body-md">
+          You currently do not have any accounts. <br />
+          Please contact support for assistance.
+        </p>
+      </div>
+    </oj-bind-if>
+  </div>
+</div>

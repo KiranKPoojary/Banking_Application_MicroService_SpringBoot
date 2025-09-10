@@ -66,6 +66,10 @@ define(['knockout', 'ojs/ojcontext', 'ojs/ojmodule-element-utils', 'ojs/ojknocko
          { path: "login", detail: { label: " User Login" } },
          { path: "signup" },
          { path: "user-dashboard", detail: { label: "user dashbaord" } },
+         { path: "manageAccountsUser", detail: { label: "My Accounts" } },
+         { path: "transfer", detail: { label: "Transfer" } },
+         { path: "withdraw", detail: { label: "Withdraw" } },
+         { path: "deposit", detail: { label: "Deposit" } },
        ];
 
        // Router setup
@@ -149,9 +153,10 @@ define(['knockout', 'ojs/ojcontext', 'ojs/ojmodule-element-utils', 'ojs/ojknocko
            return new ArrayDataProvider(
              [
                { path: "user-dashboard", detail: { label: "User Dashboard" } },
-               { path: "#", detail: { label: "Transfer" } },
-               { path: "#", detail: { label: "Deposit" } },
-               { path: "#", detail: { label: "Withdraw" } },
+               { path: "manageAccountsUser", detail: { label: "My Accounts" } },
+               { path: "transfer", detail: { label: "Transfer" } },
+               { path: "deposit", detail: { label: "Deposit" } },
+               { path: "withdraw", detail: { label: "Withdraw" } },
                //  { path: "profile", detail: { label: "Profile" } },
              ],
              { keyAttributes: "path" }

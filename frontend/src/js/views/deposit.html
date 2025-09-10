@@ -1,0 +1,67 @@
+<div class="oj-flex oj-sm-justify-content-center oj-sm-margin-4x">
+    <div class="oj-sm-12 oj-md-8 oj-lg-6 oj-panel oj-sm-padding-6x oj-border-radius-md">
+        <h2>Deposit Funds</h2>
+
+        <!-- If accounts exist -->
+        <oj-bind-if test="[[hasAccounts()]]">
+            <oj-form-layout>
+                <oj-select-single label-hint="Account" required value="{{accountNumber}}" data="[[userAccountsDP]]"
+                    item-text="accountNumber">
+                </oj-select-single>
+
+                <oj-input-number label-hint="Amount" required value="{{amount}}"></oj-input-number>
+
+                <oj-input-text label-hint="Description" required value="{{description}}"></oj-input-text>
+
+                <oj-button on-oj-action="[[makeDeposit]]">Deposit</oj-button>
+            </oj-form-layout>
+        </oj-bind-if>
+
+        <!-- If no accounts -->
+        <oj-bind-if test="[[!hasAccounts()]]">
+            <div class="oj-panel oj-sm-padding-6x oj-sm-margin-4x oj-bg-neutral-30
+                  oj-border-radius-md oj-text-align-center">
+                <h3 class="oj-typography-heading-sm oj-text-color-danger">No accounts available</h3>
+                <p>You don’t have any accounts to deposit into. Please open an account first.</p>
+            </div>
+        </oj-bind-if>
+    </div>
+</div>
+
+<!-- Success Section -->
+<oj-bind-if test="[[depositSuccess()]]">
+    <div class="oj-flex oj-sm-justify-content-center oj-sm-margin-4x">
+        <div
+            class="oj-sm-12 oj-md-8 oj-lg-6 oj-panel oj-sm-padding-6x oj-border-radius-md oj-bg-neutral-0 oj-box-shadow-md">
+
+            <h2 class="oj-typography-heading-md oj-text-color-success">✅ Deposit Successful</h2>
+            <p>Transaction ID:
+                <strong><oj-bind-text value="[[depositResponse().transactionId]]"></oj-bind-text></strong>
+            </p>
+            <p>Amount: ₹<oj-bind-text value="[[depositResponse().amount]]"></oj-bind-text></p>
+            <p> Balance: ₹<oj-bind-text value="[[depositResponse().toaccount.balance]]"></oj-bind-text></p>
+            <p>Status: <span class="oj-text-color-success"><oj-bind-text
+                        value="[[depositResponse().status]]"></oj-bind-text></span></p>
+            <p>
+                Date:
+                <oj-bind-text value="[[formatDate(depositResponse().transactionDate)]]"></oj-bind-text>
+            </p>
+            <p>Description: <oj-bind-text value="[[depositResponse().description]]"></oj-bind-text></p>
+
+            <!-- Ledger Table -->
+            <oj-c-table data="[[ledgerDataProvider]]" class="oj-sm-margin-4x-top" columns='[
+        {"headerText":"Entry Type","field":"entryType"},
+        {"headerText":"Amount","field":"amount"},
+        {"headerText":"Description","field":"description"},
+        {"headerText":"Date","field":"entryDate"}
+      ]'>
+            </oj-c-table>
+
+            <!-- Actions -->
+            <div class="oj-sm-margin-4x-top">
+                <oj-button on-oj-action="[[makeAnotherDeposit]]">Make Another Deposit</oj-button>
+                <oj-button on-oj-action="[[goToAccounts]]" chroming="outlined">Back to Accounts</oj-button>
+            </div>
+        </div>
+    </div>
+</oj-bind-if>
