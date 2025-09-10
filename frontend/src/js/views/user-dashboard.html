@@ -1,52 +1,145 @@
-
-    <div class="oj-flex oj-sm-padding-4x">
-
-        <!-- Left Section -->
-        <div class="oj-sm-12 oj-md-8 oj-flex-item oj-sm-margin-2x">
-
-            <!-- Total Account Balance -->
-            <oj-card class="oj-sm-margin-2x">
-                <div class="oj-card-header">
-                    <h3>Total Balance</h3>
+ <div class="oj-flex oj-sm-justify-content-center oj-sm-margin-4x">
+        <div class="oj-sm-12 oj-md-10 oj-lg-10">
+            <h1 class="oj-typography-heading-lg">Welcome, <oj-bind-text value="[[username]]"></oj-bind-text></h1>
+    
+            <oj-bind-if test="[[hasAccounts()]]">
+                <!-- Account Summary Section -->
+                <div class="oj-flex oj-sm-margin-4x-top">
+                    <oj-bind-for-each data="[[accountDataProvider()]]">
+                        <template  data-oj-as="item">
+                            <div class="oj-sm-12 oj-md-6 oj-lg-4 oj-sm-padding-2x">
+                                <div class="oj-panel oj-sm-padding-4x oj-border-radius-md oj-bg-neutral-0 oj-box-shadow-sm">
+                                    <h3 class="oj-typography-heading-sm">
+                                        Account Number: <oj-bind-text value="[[item.data.accountNumber]]"></oj-bind-text>
+                                    </h3>
+                                    <p>Type: <oj-bind-text value="[[item.data.accountType]]"></oj-bind-text></p>
+                                    <p>Balance: ₹ <oj-bind-text value="[[item.data.balance]]"></oj-bind-text></p>
+                                </div>
+                            </div>
+                        </template>
+                    </oj-bind-for-each>
                 </div>
-                <div class="oj-card-content">
-                    <h2 style="color: green;">
-                        <oj-bind-text value="[[totalBalance]]"></oj-bind-text> ₹
-                    </h2>
-                </div>
-            </oj-card>
 
-            <!-- Last 5 Transactions -->
-            <oj-card class="oj-sm-margin-2x">
-                <div class="oj-card-header">
-                    <h3>Last 5 Transactions</h3>
-                </div>
-                <div class="oj-card-content">
-                    <oj-table id="txnTable" aria-label="Transaction Table" data="[[txnDataProvider]]" columns='[
-              {"headerText":"Date", "field":"date"},
-              {"headerText":"Description", "field":"desc"},
-              {"headerText":"Amount", "field":"amount"},
-              {"headerText":"Type", "field":"type"}
-            ]' style="max-height:200px; overflow:auto;">
-                    </oj-table>
-                </div>
-            </oj-card>
 
-        </div>
+                <h3>Account Transactions</h3>
+                
+                <!-- Account Dropdown -->
+                <oj-select-single value="{{selectedAccountId}}" label-hint="Select Account" data="[[accountDataProvider]]"
+                    item-text="accountNumber" item-value="id">
+                </oj-select-single>
 
-        <!-- Right Section -->
-        <div class="oj-sm-12 oj-md-4 oj-flex-item oj-sm-margin-2x">
 
-            <!-- Spending by Category Pie Chart -->
-        <oj-chart id="spendingChart" type="pie" data="[[chartDataProvider]]" animation-on-display="auto"
-            animation-on-data-change="auto">
-            <template slot="itemTemplate" data-oj-as="item">
-                <oj-chart-item value="[[item.data.value]]" group-id="[[[item.data.category]]]" series-id="[[[item.data.category]]]">
-                </oj-chart-item>
+
+                <!-- Transactions Table -->
+            <oj-table data="[[transactionDataProvider]]" class="oj-sm-margin-4x-top" columns='[
+                {"headerText": "Transaction ID","field":"transactionId"},  
+                {"headerText":"Date","field":"formattedDate"},
+                {"headerText":"Description","field":"description"},
+                {"headerText":"Debit","field":"debit"},
+                {"headerText":"Credit","field":"credit"}
+            ]'>
+
+            <!-- Transaction ID -->
+            <template slot="cellTemplate" data-oj-slot="transactionId">
+                <oj-bind-text value="[[$current.data]]"></oj-bind-text>
             </template>
-        </oj-chart>
+            
+                <!-- Date -->
+                <template slot="cellTemplate" data-oj-slot="formattedDate">
+                    <oj-bind-text value="[[$current.data]]"></oj-bind-text>
+                </template>
+            
+                <!-- Description -->
+                <template slot="cellTemplate" data-oj-slot="description">
+                    <oj-bind-text value="[[$current.data]]"></oj-bind-text>
+                </template>
+            
+                <!-- Debit (red text if not null) -->
+                <template slot="cellTemplate" data-oj-slot="debit">
+                    <oj-bind-if test="[[$current.data != null]]">
+                        <span class="red-text" >
+                        ₹<oj-bind-text value="[[$current.data]]"></oj-bind-text>
+                        </span>
+                    </oj-bind-if>
+                </template>
+            
+                <!-- Credit (green text if not null) -->
+                <template slot="cellTemplate" data-oj-slot="credit">
+                    <oj-bind-if test="[[$current.data != null]]">
+                        <span class="oj-text-color-success">
+                            ₹<oj-bind-text value="[[$current.data]]"></oj-bind-text>
+                        </span>
+                    </oj-bind-if>
+                </template>
+            </oj-table>
+
+            <h3>Analytics & Visuals</h3>
+
+            <!-- Debit vs Credit Pie Chart -->
+             <oj-c-highlight-text >Debit vs Credit analysis</oj-c-highlight-text>
+            <oj-chart id="debitCreditChart" type="pie"
+                data="[[new oj.ArrayDataProvider(debitCreditSummary, { keyAttributes: 'type' })]]" animation-on-display="auto"
+                animation-on-data-change="auto">
+            
+                <template slot="itemTemplate" data-oj-as="item">
+                    <!-- group-id must be an array -->
+                    <oj-chart-item  group-id="[[ [item.data.group] ]]" series-id="[[ item.data.series ]]" value="[[item.data.value]]">
+                    </oj-chart-item>
+                </template>
+            </oj-chart>
 
 
+
+            <div class="oj-flex oj-sm-justify-content-center oj-flex-wrap">
+
+                <!-- Monthly Transactions Bar Chart -->
+                <div class="oj-sm-12 oj-md-6 oj-lg-6 oj-padding-2x">
+                    <oj-c-highlight-text>Monthly Transactions analysis</oj-c-highlight-text>
+
+                    <oj-chart id="monthlyChart" type="bar" orientation="vertical"
+                        data="[[new oj.ArrayDataProvider(monthlySummary, {keyAttributes:'period'})]]">
+                        <template slot="itemTemplate" data-oj-as="item">
+                            <oj-chart-item series-id="Monthly Transaction" group-id="[[ [item.data.period] ]]" value="[[item.data.amount]]">
+                            </oj-chart-item>
+                        </template>
+                    </oj-chart>
+                </div>
+                
+                <div class="oj-sm-12 oj-md-6 oj-lg-6 oj-padding-2x">
+                    <!-- Weekly Transactions Line Chart -->
+                    <oj-c-highlight-text>Weekly Transactions analysis</oj-c-highlight-text>
+
+                    <oj-chart id="weeklyChart" type="bar" animation-on-display="auto" animation-on-data-change="auto"  legend.position="bottom" x-axis.major-tick-label="auto" data="[[new oj.ArrayDataProvider(weeklySummary, {keyAttributes:'week'})]]">
+                        <template slot="itemTemplate" data-oj-as="item">
+                            <oj-chart-item series-id="Weekly Transaction" group-id="[[[item.data.week]]]" value="[[item.data.amount]]">
+                            </oj-chart-item>
+                        </template>
+                    </oj-chart>
+                </div>
+            </div>   
+
+
+         <oj-c-highlight-text>Daily Transaction Analysis</oj-c-highlight-text>
+            <oj-chart id="dailyChart" type="bar" animation-on-display="auto" animation-on-data-change="auto" legend.position="bottom" data="[[new oj.ArrayDataProvider(dailySummary, {keyAttributes:'group'})]]">
+            
+                <template slot="itemTemplate" data-oj-as="item">
+                    <oj-chart-item value="[[item.data.value]]" group-id="[[ [item.data.day] ]]" series-id="[[item.data.series]]">
+                    </oj-chart-item>
+                </template>
+            </oj-chart>
+
+       
+
+
+            </oj-bind-if>  
+              
+            </div>
         </div>
+
+
+
+        
+        
+       
 
     </div>

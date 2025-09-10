@@ -163,3 +163,9 @@ oj-select-single {
 }
 
 
+/* red text color */
+.red-text {
+  color: var(--oj-core-danger-1) !important;
+  font-weight: 500;
+}
+
