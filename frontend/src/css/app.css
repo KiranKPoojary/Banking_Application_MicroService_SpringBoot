@@ -169,3 +169,11 @@ oj-select-single {
   font-weight: 500;
 }
 
+
+#notificationDialog .dialog-body {
+  max-height: 60vh;
+  /* dialog body takes up to 60% of viewport height */
+  overflow-y: auto;
+  /* enable vertical scrolling */
+}
+

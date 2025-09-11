@@ -13,6 +13,7 @@ public interface NotificationService {
 
 //    Notification sendWelcomeNotification(Notification notification);
 
+    List<Notification> getAllNotification();
     Notification getNotificationById(Long id);
 
     List<Notification> getNotificationsByUserId(Long userId);

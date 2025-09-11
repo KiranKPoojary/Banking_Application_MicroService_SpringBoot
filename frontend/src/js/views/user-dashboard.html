@@ -35,42 +35,30 @@
                 {"headerText": "Transaction ID","field":"transactionId"},  
                 {"headerText":"Date","field":"formattedDate"},
                 {"headerText":"Description","field":"description"},
-                {"headerText":"Debit","field":"debit"},
-                {"headerText":"Credit","field":"credit"}
+                {"headerText":"Debit","field":"debit","template":"debitTemplate"},
+                {"headerText":"Credit","field":"credit","template":"creditTemplate"}
             ]'>
-
-            <!-- Transaction ID -->
-            <template slot="cellTemplate" data-oj-slot="transactionId">
-                <oj-bind-text value="[[$current.data]]"></oj-bind-text>
+            
+            <!-- Debit (red text if not null) -->
+            <template slot="debitTemplate" data-oj-slot="debit">
+                <oj-bind-if test="[[$current.data != null]]">
+                    <span class="oj-text-color-danger">
+                        ₹<oj-bind-text value="[[$current.data]]"></oj-bind-text>
+                    </span>
+                </oj-bind-if>
+                <oj-bind-if test="[[$current.data==null]]">--</oj-bind-if>
             </template>
             
-                <!-- Date -->
-                <template slot="cellTemplate" data-oj-slot="formattedDate">
-                    <oj-bind-text value="[[$current.data]]"></oj-bind-text>
-                </template>
-            
-                <!-- Description -->
-                <template slot="cellTemplate" data-oj-slot="description">
-                    <oj-bind-text value="[[$current.data]]"></oj-bind-text>
-                </template>
-            
-                <!-- Debit (red text if not null) -->
-                <template slot="cellTemplate" data-oj-slot="debit">
-                    <oj-bind-if test="[[$current.data != null]]">
-                        <span class="red-text" >
+            <!-- Credit (green text if not null) -->
+            <template slot="creditTemplate" data-oj-slot="credit">
+                <oj-bind-if test="[[$current.data != null]]">
+                    <span class="oj-text-color-success">
                         ₹<oj-bind-text value="[[$current.data]]"></oj-bind-text>
-                        </span>
-                    </oj-bind-if>
-                </template>
-            
-                <!-- Credit (green text if not null) -->
-                <template slot="cellTemplate" data-oj-slot="credit">
-                    <oj-bind-if test="[[$current.data != null]]">
-                        <span class="oj-text-color-success">
-                            ₹<oj-bind-text value="[[$current.data]]"></oj-bind-text>
-                        </span>
-                    </oj-bind-if>
-                </template>
+                    </span>
+                </oj-bind-if>
+                </oj-bind-if>
+                <oj-bind-if test="[[$current.data==null]]">--</oj-bind-if>
+            </template>
             </oj-table>
 
             <h3>Analytics & Visuals</h3>

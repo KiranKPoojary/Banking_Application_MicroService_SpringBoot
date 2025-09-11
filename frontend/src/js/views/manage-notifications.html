@@ -1,0 +1,70 @@
+<div class="oj-flex oj-sm-flex-direction-column" style="width:100vw; padding:10px; box-sizing:border-box;">
+        <h3 class="oj-typography-subheading-sm">Notifications</h3>
+
+
+<!-- Loading / error -->
+<oj-bind-if test="[[loading()]]">
+    <div class="oj-sm-padding-2x">Loading notifications…</div>
+</oj-bind-if>
+<oj-bind-if test="[[errorMessage()]]">
+    <div class="oj-sm-padding-2x oj-typography-body-sm oj-text-color-danger">
+        <oj-bind-text value="[[errorMessage()]]"></oj-bind-text>
+    </div>
+</oj-bind-if>
+
+<!-- Notifications Table -->
+<oj-table id="notificationsTable" data="[[notificationDataProvider]]" aria-label="Notifications" class="oj-sm-margin-4x"
+    selection-mode='{"row": "single"}' columns='[
+            {"headerText":"ID","field":"id"},
+            {"headerText":"Subject","field":"subject"},
+            {"headerText":"Status","field":"status"},
+            {"headerText":"Date","field":"formattedDate"},
+            {"headerText":"Action","field":"action","template":"actionTemplate"}
+          ]'>
+        
+    <!-- Action template: View -->
+    <template slot="actionTemplate" data-oj-as="row">
+        <div class="oj-flex">
+            <div class="oj-flex-item oj-sm-12 oj-md-12">
+                <oj-button chroming="callToAction" id="buttonOpener" on-oj-action="[[openNotification]]">View</oj-button>
+            </div>
+        </div>
+    </template>
+
+</oj-table>
+
+
+</div>
+
+
+
+<oj-dialog id="notificationDialog" dialog-title="Notification Details" modality="modal">
+    <div slot="body" class="oj-sm-padding-4x dialog-body">
+        <oj-bind-if test="[[selectedNotification()]]">
+            <h6>Email sent to- <oj-bind-text value="[[selectedNotification().email]]"></oj-bind-text></h6> 
+            <h4>Subject:<oj-bind-text value="[[selectedNotification().subject]]"></oj-bind-text></h4>
+
+           
+            <div data-bind="html: selectedNotification().message"
+                style="margin-top:15px; border:1px solid #ddd; padding:10px; border-radius:6px;">
+            </div>
+
+            <p class="oj-sm-margin-2x-top">
+                <strong>Status:</strong>
+                <span class="oj-text-color-success">
+                    <oj-bind-text value="[[selectedNotification().status]]"></oj-bind-text>
+                </span>
+                
+            </p>
+            <p>
+                <strong>Date:</strong>
+                <oj-bind-text value="[[selectedNotification().formattedDate]]"></oj-bind-text>
+            </p>
+        </oj-bind-if>
+    </div>
+
+    <!-- Footer -->
+    <div slot="footer" class="oj-sm-justify-content-flex-end">
+        <oj-button on-oj-action="[[closeNotification]]">Close</oj-button>
+    </div>
+</oj-dialog>

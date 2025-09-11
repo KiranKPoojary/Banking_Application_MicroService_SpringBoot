@@ -41,7 +41,7 @@ define(['knockout', 'ojs/ojcontext', 'ojs/ojmodule-element-utils', 'ojs/ojknocko
          ResponsiveKnockoutUtils.createMediaQueryObservable(mdQuery);
 
        let navData = [
-         { path: "", redirect: "dashboard" },
+         { path: "", redirect: "home" },
          {
            path: "dashboard",
            detail: { label: "Dashboard", iconClass: "oj-ux-ico-bar-chart" },
@@ -66,10 +66,19 @@ define(['knockout', 'ojs/ojcontext', 'ojs/ojmodule-element-utils', 'ojs/ojknocko
          { path: "login", detail: { label: " User Login" } },
          { path: "signup" },
          { path: "user-dashboard", detail: { label: "user dashbaord" } },
+         { path: "admin-dashboard", detail: { label: "admin dashbaord" } },
+
          { path: "manageAccountsUser", detail: { label: "My Accounts" } },
          { path: "transfer", detail: { label: "Transfer" } },
          { path: "withdraw", detail: { label: "Withdraw" } },
          { path: "deposit", detail: { label: "Deposit" } },
+         { path: "manage-employees", detail: { label: "Manage Employees" } },
+         { path: "manage-user", detail: { label: "Manage User" } },
+         {
+           path: "manage-notifications",
+           detail: { label: "Manage Notifications" },
+         },
+         { path: "manage-accounts", detail: { label: "Manage Accounts" } },
        ];
 
        // Router setup
@@ -167,16 +176,22 @@ define(['knockout', 'ojs/ojcontext', 'ojs/ojmodule-element-utils', 'ojs/ojknocko
             return new ArrayDataProvider(
               [
                 {
-                  path: "#",
+                  path: "admin-dashboard",
                   detail: { label: "Admin Dashboard" },
                 },
                 {
-                  path: "#",
+                  path: "manage-employees",
                   detail: { label: "Manage Employee" },
                 },
-                { path: "#", detail: { label: "Manage Accounts" } },
-                { path: "#", detail: { label: "Manage User" } },
-                { path: "#", detail: { label: "Manage Notification" } },
+                {
+                  path: "manage-accounts",
+                  detail: { label: "Manage Accounts" },
+                },
+                { path: "manage-user", detail: { label: "Manage User" } },
+                {
+                  path: "manage-notifications",
+                  detail: { label: "Manage Notifications" },
+                },
               ],
               { keyAttributes: "path" }
             );
@@ -236,23 +251,7 @@ define(['knockout', 'ojs/ojcontext', 'ojs/ojmodule-element-utils', 'ojs/ojknocko
        // User Info used in Global Navigation area
        this.userLogin = userRole();
 
-       //  this.username= username();
-
-       //Header Signout
-
-       // self.confirmLogout = function () {
-       //   console.log("Logging out...");
-       //   window.app.isLoggedIn(false);
-       //   window.app.userRole(null);
-       //   window.app.username(null);
-       //   localStorage.clear();
-       //   console.log("Logged out successfully");
-
-       //   document.getElementById("logoutGlobalDialog").close();
-
-       //   CoreRouter.rootInstance.go({path: 'home'});
-       // };
-
+      
        self.confirmLogout = function () {
          console.log("Logging out...");
 
@@ -314,7 +313,7 @@ define(['knockout', 'ojs/ojcontext', 'ojs/ojmodule-element-utils', 'ojs/ojknocko
 
        self.cancelLogout = function () {
          console.log("Logout canceled");
-         // Router.rootInstance.go("dashboard");
+             document.getElementById("logoutGlobalDialog").close();
        };
 
        self.openLogoutDialog = function () {

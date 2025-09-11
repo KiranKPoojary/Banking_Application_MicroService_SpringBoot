@@ -1,0 +1,42 @@
+
+<div class="oj-flex oj-sm-flex-direction-column" style="width:100vw; padding:10px; box-sizing:border-box;">
+    <h3>Manage Employees</h3>
+ <!-- Employee Table --> <oj-table id="employeeTable" data="[[employeeDataProvider]]" selection-mode.row="single"
+    columns='[ {"headerText": "ID", "field": "employeeId"}, {"headerText": "Username", "field": "username"}, {"headerText": "First Name", "field": "firstName"}, {"headerText": "Last Name", "field": "lastName"}, {"headerText": "Email", "field": "email"}, {"headerText": "Role", "field": "role"}, {"headerText": "Branch", "field": "branch"}, {"headerText": "Status", "field": "status"} ]'>
+</oj-table>  
+</div>
+    
+    <!-- Add Employee Dialog -->
+    
+    <oj-dialog id="addEmployeeDialog"
+    dialog-title="Add New Employee">
+    <div class="oj-form oj-sm-margin-4x"> <oj-input-text id="username"  required value="{{newEmployee.username}}"
+            label-hint="Username"></oj-input-text> <oj-input-text id="firstName" required value="{{newEmployee.firstName}}"
+            label-hint="First Name"></oj-input-text> <oj-input-text id="lastName" required value="{{newEmployee.lastName}}"
+            label-hint="Last Name"></oj-input-text> <oj-input-text id="email" required value="{{newEmployee.email}}"
+            label-hint="Email"></oj-input-text> <oj-input-password id="password"required value="{{newEmployee.password}}"
+            label-hint="Password"></oj-input-password> <oj-input-text id="role" required value="{{newEmployee.role}}"
+            label-hint="Role"></oj-input-text> <oj-input-text id="branch" required value="{{newEmployee.branch}}"
+            label-hint="Branch"></oj-input-text> <oj-input-text id="status" value="{{newEmployee.status}}"
+            label-hint="Status"></oj-input-text> </div>
+    <div slot="footer"> <oj-button on-oj-action="[[saveEmployee]]">Save</oj-button> <oj-button
+            on-oj-action="[[closeAddDialog]]">Cancel</oj-button> </div>
+</oj-dialog>
+
+
+
+<!-- Add Employee Button -->
+ 
+<oj-button id="addBtn" on-oj-action="[[openAddDialog]]" chroming="callToAction"
+    class="oj-sm-margin-2x oj-text-color-success"> Add Employee </oj-button>
+
+
+    <!-- Success Dialog -->
+    <oj-dialog id="successDialog" dialog-title="Success">
+        <div class="oj-sm-padding-4x">
+            Employee added successfully!
+        </div>
+        <div slot="footer">
+            <oj-button on-oj-action="[[closeSuccessDialog]]">OK</oj-button>
+        </div>
+    </oj-dialog>

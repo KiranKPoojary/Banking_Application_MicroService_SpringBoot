@@ -1,0 +1,44 @@
+<div class="oj-flex oj-sm-justify-content-between oj-sm-align-items-center oj-sm-margin-4x">
+    <h3 class="oj-typography-subheading-sm">Users</h3>
+</div>
+
+<oj-table id="userTable" data="[[userDataProvider]]" selection-mode='{"row": "single"}' columns='[
+            {"headerText": "ID", "field": "id"},
+            {"headerText": "Username", "field": "username"},
+            {"headerText": "First Name", "field": "firstName"},
+            {"headerText": "Last Name", "field": "lastName"},
+            {"headerText": "Email", "field": "email"},
+            {"headerText": "Phone", "field": "phoneNumber"},
+            {"headerText": "Role", "field": "role"},
+            {"headerText": "Status", "field": "status"},
+            {"headerText": "Action", "field":"action","template": "actionTemplate"}
+          ]'>
+
+
+            <template slot="actionTemplate" data-oj-as="row">
+                <div class="oj-flex">
+                    <div class="oj-flex-item oj-sm-12 oj-md-12">
+                        <oj-c-button chroming="callToAction" label="[[row.data.actionLabel]]"
+                            on-oj-action="[[toggleUserStatus]]">
+                        </oj-c-button>
+                    </div>
+                </div>
+            </template>
+
+</oj-table>
+
+<!-- ✅ Template slot wrapped in a container -->
+
+    
+
+
+
+
+<oj-dialog id="userSuccessDialog" dialog-title="Success">
+    <div class="oj-sm-padding-4x">
+        User status updated successfully!
+    </div>
+    <div slot="footer">
+        <oj-button on-oj-action="[[closeUserSuccessDialog]]">OK</oj-button>
+    </div>
+</oj-dialog>

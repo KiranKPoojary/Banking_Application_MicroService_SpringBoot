@@ -34,6 +34,10 @@ public class NotificationServiceImpl implements NotificationService {
 
     private final EmailTemplateService emailTemplateService;
 
+    @Override
+    public List<Notification> getAllNotification() {
+        return notificationRepository.findAll();
+    }
 
     @Override
     public Notification getNotificationById(Long id) {

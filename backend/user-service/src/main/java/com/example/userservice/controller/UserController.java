@@ -82,13 +82,13 @@ public class UserController {
 
     // ✅ Activate User
 
-    @PatchMapping("/{id}/activate")
+    @PatchMapping("/{id}/active")
     public ResponseEntity<User> activateUser(@PathVariable Long id) {
         return ResponseEntity.ok(userService.updateStatus(id, UserStatus.ACTIVE));
     }
 
     // ✅ Deactivate User
-    @PatchMapping("/{id}/deactivate")
+    @PatchMapping("/{id}/inactive")
     public ResponseEntity<User> deactivateUser(@PathVariable Long id) {
         return ResponseEntity.ok(userService.updateStatus(id, UserStatus.INACTIVE));
     }

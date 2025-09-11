@@ -17,6 +17,10 @@ public class NotificationController {
 
     private final NotificationService notificationService;
 
+    @GetMapping()
+    public ResponseEntity<List<Notification>> getAllNotification() {
+        return ResponseEntity.ok(notificationService.getAllNotification());
+    }
 
     // 1. POST /notifications/send
 //    @PostMapping("/send")
