@@ -1,5 +1,8 @@
-<div class="oj-flex oj-sm-justify-content-center oj-sm-margin-4x">
-    <div class="oj-sm-12 oj-md-8 oj-lg-6 oj-panel oj-sm-padding-6x oj-border-radius-md">
+<div class="oj-flex oj-sm-flex-direction-column oj-typography-body-xs" style="width:90vw; padding:10px; box-sizing:border-box;">
+<!-- 
+<div class="oj-flex oj-sm-justify-content-center oj-sm-margin-4x oj-typography-body-sm">
+    <div class="oj-sm-12 oj-md-8 oj-lg-6 oj-panel oj-sm-padding-6x oj-border-radius-md oj-typography-body-sm"> -->
+      
     <h2 class="oj-typography-heading-lg oj-sm-margin-4x-bottom oj-text-color-primary">
       My Accounts
     </h2>
@@ -51,20 +54,55 @@
       </div>
     </oj-bind-if>
 
-    <!-- Show "no accounts" message if none exist -->
-    <oj-bind-if test="[[!hasAccounts()]]">
-      <div
-        class="oj-panel oj-sm-padding-6x oj-sm-margin-4x oj-bg-neutral-30
-               oj-border-radius-md oj-text-align-center"
-      >
-        <h3 class="oj-typography-heading-sm oj-text-color-danger">
-          No accounts found.
-        </h3>
-        <p class="oj-typography-body-md">
-          You currently do not have any accounts. <br />
-          Please contact support for assistance.
-        </p>
-      </div>
+  <!-- If no accounts, allow request -->
+   
+  <oj-bind-if test="[[!hasAccounts()]]">
+    <div class="oj-panel oj-sm-padding-4x oj-bg-neutral-30 oj-border-radius-md oj-text-align-center">
+      <h3>No accounts found</h3>
+      <p>You can request to open a new account:</p>
+  
+      <oj-select-single id="accountTypeSelect" value="{{selectedAccountType}}" data="[[accountTypeOptions]]"
+        placeholder="Select Account Type">
+      </oj-select-single>
+  
+      <oj-button chroming="callToAction" class="oj-sm-margin-2x-top" on-oj-action="[[createAccountRequest]]">
+        Request Account
+      </oj-button>
+    </div>
+  </oj-bind-if>
+
+
+  <!-- Show request progress -->
+   <oj-bind-if test="[[hasRequests()]]">
+    <h3 class="oj-typography-heading-sm oj-sm-margin-4x-top">My Requests</h3>
+    <oj-table id="requestTable" data="[[requestDataProvider]]" columns='[
+          {"headerText": "ID", "field": "id"},
+          {"headerText": "Type", "field": "accountType"},
+          {"headerText": "Status", "field": "status"},
+          {"headerText": "Account", "field": "accountNumber"},
+          {"headerText": "Created", "field": "createdAt"},
+          {"headerText": "Progress", "field": "status", "template": "progressTemplate"}
+        ]'>
+ 
+      <template slot="progressTemplate" data-oj-as="row">
+        <oj-train selected-step="[[row.data]]" steps="[[reqTrainSteps]]" class="oj-train-stretch">
+        </oj-train>
+      </template>
+      </oj-table>   
     </oj-bind-if>
-  </div>
+
+
+    <oj-dialog id="accountrequestsuccess" dialog-title="Success" modality="modal" style="width:400px;">
+      <div slot="body" class="oj-sm-padding-4x oj-text-align-center">
+        <h3 class="oj-typography-heading-md oj-text-color-success">✅ Request Submitted</h3>
+        <p>Your account request has been submitted successfully.</p>
+        <oj-button on-oj-action="[[closeaccountrequestsuccess]]" class="oj-sm-margin-3x-top oj-button-confirm">
+          Close
+        </oj-button>
+      </div>
+
+
+ <!-- </div>
+</div>  -->
+
 </div>
