@@ -5,15 +5,14 @@ import com.example.accountservice.dto.AccountDto;
 import com.example.accountservice.dto.AccountOpenedEvent;
 import com.example.accountservice.dto.LedgerDto;
 import com.example.accountservice.dto.UserDto;
-import com.example.accountservice.entity.Account;
-import com.example.accountservice.entity.CustomUserDetails;
-import com.example.accountservice.entity.Ledger;
-import com.example.accountservice.entity.Transaction;
+import com.example.accountservice.entity.*;
 import com.example.accountservice.entity.enums.AccountStatus;
+import com.example.accountservice.entity.enums.RequestStatus;
 import com.example.accountservice.exception.DuplicateAccountException;
 import com.example.accountservice.exception.ExternalServiceException;
 import com.example.accountservice.exception.UserNotFoundException;
 import com.example.accountservice.repository.AccountRepository;
+import com.example.accountservice.repository.AccountRequestRepository;
 import com.example.accountservice.repository.TransactionRepository;
 import com.example.accountservice.service.AccountService;
 import com.example.accountservice.service.TransactionService;
@@ -35,19 +34,14 @@ import java.util.Optional;
 @Builder
 public class AccountServiceImpl implements AccountService {
     private final AccountRepository accountRepository;
+    private final AccountRequestRepository accountRequestRepository;
     private final UserClient userClient;
     private final TransactionService transactionService;
 
 
     private final KafkaAccountProducer kafkaAccountProducer;
 
-//    public AccountServiceImpl(AccountRepository accountRepository, UserClient userClient, TransactionService transactionService, AccountOpenedEvent accountOpenedEvent, KafkaAccountProducer kafkaAccountProducer) {
-//        this.accountRepository = accountRepository;
-//        this.userClient = userClient;
-//        this.transactionService = transactionService;
-//        this.accountOpenedEvent = accountOpenedEvent;
-//        this.kafkaAccountProducer = kafkaAccountProducer;
-//    }
+
 
     @Override
     public Account createAccount(AccountDto request) {
@@ -80,19 +74,21 @@ public class AccountServiceImpl implements AccountService {
             account.setCreatedBy(request.getCreatedBy());
             Account newAccount= accountRepository.save(account);
 
-// ***********This is not called - Kafka called when account gets approved by Manager
+            System.out.println("Saved new accout");
 
-//            // Call Kafka Producer to push notification On successful open of account
-//            AccountOpenedEvent accountOpenedEvent = new AccountOpenedEvent();
-//            accountOpenedEvent.setUserId(newAccount.getUserId());
-//            accountOpenedEvent.setAccountId(newAccount.getId());
-//            accountOpenedEvent.setAccountNumber(newAccount.getAccountNumber());
-//            accountOpenedEvent.setAccountType(newAccount.getAccountType());
-//            accountOpenedEvent.setInitialBalance(newAccount.getBalance());
-//            accountOpenedEvent.setOpenedAt(newAccount.getCreatedAt());
-//
-//            //Calling Kafka Produce method
-//            kafkaAccountProducer.sendAccountOpenedEvent(accountOpenedEvent);
+
+            // 2. Update account request
+            AccountRequest accountRequest = accountRequestRepository
+                    .findByUserIdAndAccountTypeAndStatus(newAccount.getUserId(), newAccount.getAccountType(), RequestStatus.REQUESTED)
+                    .orElseThrow(()->new IllegalArgumentException("Account request not found with user id: " + newAccount.getUserId() ));
+
+            System.out.println(accountRequest);
+            accountRequest.setStatus(RequestStatus.CREATED);
+            accountRequest.setAccountNumber(newAccount.getAccountNumber());
+            accountRequest.setAccount(newAccount);
+            System.out.println(accountRequestRepository.save(accountRequest));
+
+
 
             return newAccount;
 
@@ -115,6 +111,18 @@ public class AccountServiceImpl implements AccountService {
         account.setStatus(AccountStatus.ACTIVE);
 
         Account approvedAccount= accountRepository.save(account);
+
+
+        // 2. Update account request
+        AccountRequest accountRequest = accountRequestRepository
+                .findByUserIdAndAccountTypeAndStatus(approvedAccount.getUserId(), approvedAccount.getAccountType(), RequestStatus.CREATED)
+                .orElseThrow(()->new IllegalArgumentException("Account request not found with user id: " + approvedAccount.getUserId() ));
+
+
+        accountRequest.setStatus(RequestStatus.APPROVED);
+        accountRequestRepository.save(accountRequest);
+
+
         // Call Kafka Producer to push notification On successful open of account
         AccountOpenedEvent accountOpenedEvent = new AccountOpenedEvent();
         accountOpenedEvent.setUserId(approvedAccount.getUserId());

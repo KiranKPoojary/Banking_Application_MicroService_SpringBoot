@@ -2,10 +2,8 @@ package com.example.accountservice.controller;
 
 import com.example.accountservice.dto.AccountDto;
 import com.example.accountservice.dto.LedgerDto;
-import com.example.accountservice.entity.Account;
-import com.example.accountservice.entity.CustomUserDetails;
-import com.example.accountservice.entity.Ledger;
-import com.example.accountservice.entity.Transaction;
+import com.example.accountservice.entity.*;
+import com.example.accountservice.repository.AccountRequestRepository;
 import com.example.accountservice.service.AccountService;
 import com.example.accountservice.service.TransactionService;
 import org.springframework.http.ResponseEntity;
@@ -23,7 +21,7 @@ public class AccountController {
     private final AccountService accountService;
 
 
-    public AccountController(AccountService accountService) {
+    public AccountController(AccountService accountService, AccountRequestRepository accountRequestRepository) {
         this.accountService = accountService;
 
     }
@@ -43,10 +41,12 @@ public class AccountController {
         if (account.getAccountNumber() == null) {
             account.setAccountNumber(String.valueOf(ThreadLocalRandom.current().nextLong(1000000000L, 9999999999L)));
         }
-        CustomUserDetails customUserDetails=(CustomUserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        CustomUserDetails customUserDetails = (CustomUserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         account.setCreatedBy(customUserDetails.getId());
+
         return ResponseEntity.ok(accountService.createAccount(account));
     }
+
 
     //Approve account can be done by only Manager
     @PreAuthorize("hasRole('MANAGER')")

@@ -10,6 +10,9 @@ define([
 
     // self.mappedUsers=ko.observable([]);
 
+    self.userRole = localStorage.getItem("role").toLowerCase();
+
+
     self.userDataProvider = ko.observable(
       new ArrayDataProvider([], { keyAttributes: "id" })
     );

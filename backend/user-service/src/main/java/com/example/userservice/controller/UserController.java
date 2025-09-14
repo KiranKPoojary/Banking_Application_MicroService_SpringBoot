@@ -3,7 +3,6 @@ package com.example.userservice.controller;
 
 import com.example.userservice.dto.AccountDto;
 import com.example.userservice.dto.TransactionDto;
-import com.example.userservice.entity.CustomUserDetails;
 import com.example.userservice.entity.User;
 import com.example.userservice.entity.enums.UserStatus;
 import com.example.userservice.service.UserService;
@@ -32,17 +31,17 @@ public class UserController {
         System.out.println(authentication.getAuthorities());
         return ResponseEntity.ok(userService.getAllUsers());
     }
-    @GetMapping("/profile")
-    @PreAuthorize("hasAnyRole('ADMIN')")
-    public Long getProfile(Authentication authentication) {
-        CustomUserDetails userDetails = (CustomUserDetails) authentication.getPrincipal();
-        String username = userDetails.getUsername();
-        Long Id=userDetails.getId();
-        System.out.println(username);
-        System.out.println(Id);
-        System.out.println(authentication.getAuthorities());
-        return Id;
-    }
+//    @GetMapping("/profile")
+//    @PreAuthorize("hasAnyRole('ADMIN')")
+//    public Long getProfile(Authentication authentication) {
+//        CustomUserDetails userDetails = (CustomUserDetails) authentication.getPrincipal();
+//        String username = userDetails.getUsername();
+//        Long Id=userDetails.getId();
+//        System.out.println(username);
+//        System.out.println(Id);
+//        System.out.println(authentication.getAuthorities());
+//        return Id;
+//    }
 //,
     // ✅ Get User by ID
     @PreAuthorize("hasRole('SERVICE') || #id == authentication.principal.id || hasAnyRole('ADMIN', 'MANAGER', 'EXECUTIVE') ")

@@ -1,19 +1,22 @@
 define([
   "ojs/ojcore",
   "knockout",
+  "ojs/ojarraydataprovider",
   "ojs/ojtable",
   "ojs/ojdialog",
   "ojs/ojinputtext",
   "ojs/ojbutton",
   "ojs/ojarraydataprovider",
-], function (oj, ko) {
+], function (oj, ko,ArrayDataProvider) {
   function ManageEmployeesViewModel() {
     let self = this;
 
     self.employees = ko.observableArray([]);
-    self.employeeDataProvider = new oj.ArrayDataProvider(self.employees, {
+    self.employeeDataProvider = new ArrayDataProvider(self.employees, {
       keyAttributes: "employeeId",
     });
+    
+
 
     // Form for new employee
     self.newEmployee = {

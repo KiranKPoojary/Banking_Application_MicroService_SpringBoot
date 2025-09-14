@@ -67,18 +67,27 @@ define(['knockout', 'ojs/ojcontext', 'ojs/ojmodule-element-utils', 'ojs/ojknocko
          { path: "signup" },
          { path: "user-dashboard", detail: { label: "user dashbaord" } },
          { path: "admin-dashboard", detail: { label: "admin dashbaord" } },
-
+         { path: "manager-dashboard", detail: { label: "Manager dashbaord" } },
+         {
+           path: "executive-dashboard",
+           detail: { label: "Executive dashbaord" },
+         },
          { path: "manageAccountsUser", detail: { label: "My Accounts" } },
          { path: "transfer", detail: { label: "Transfer" } },
          { path: "withdraw", detail: { label: "Withdraw" } },
          { path: "deposit", detail: { label: "Deposit" } },
          { path: "manage-employees", detail: { label: "Manage Employees" } },
          { path: "manage-user", detail: { label: "Manage User" } },
+
          {
            path: "manage-notifications",
            detail: { label: "Manage Notifications" },
          },
          { path: "manage-accounts", detail: { label: "Manage Accounts" } },
+         {
+           path: "manage-account-request",
+           detail: { label: "Manage Accounts Request" },
+         },
        ];
 
        // Router setup
@@ -201,14 +210,14 @@ define(['knockout', 'ojs/ojcontext', 'ojs/ojmodule-element-utils', 'ojs/ojknocko
             return new ArrayDataProvider(
               [
                 {
-                  path: "#",
+                  path: "manager-dashboard",
                   detail: { label: "Manager Dashboard" },
                 },
                 {
-                  path: "#",
+                  path: "manage-account-request",
                   detail: { label: "Approve Account" },
                 },
-                { path: "#", detail: { label: "Manage User" } },
+                { path: "manage-user", detail: { label: "Manage User" } },
               ],
               { keyAttributes: "path" }
             );
@@ -218,14 +227,18 @@ define(['knockout', 'ojs/ojcontext', 'ojs/ojmodule-element-utils', 'ojs/ojknocko
             return new ArrayDataProvider(
               [
                 {
-                  path: "#",
+                  path: "executive-dashboard",
                   detail: { label: "Executive Dashboard" },
                 },
                 {
-                  path: "#",
+                  path: "manage-user",
                   detail: { label: "Manage User" },
                 },
-                { path: "#", detail: { label: "Manage Accounts" } },
+                { path: "manage-accounts", detail: { label: "Manage Accounts" } },
+                {
+                  path: "manage-account-request",
+                  detail: { label: "Manage Accounts Request" },
+                },
               ],
               { keyAttributes: "path" }
             );

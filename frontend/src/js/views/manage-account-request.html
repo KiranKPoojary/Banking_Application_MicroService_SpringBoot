@@ -1,0 +1,112 @@
+<!-- EXECUTIVE VIEW -->
+<oj-bind-if test="[[userRole === 'executive']]">
+    <h3>Account Requests (For Creation)</h3>
+    <oj-table data="[[accountRequestsProvider]]" columns='[
+            {"headerText": "ID", "field": "id"},
+          {"headerText": "Type", "field": "accountType"},
+          {"headerText":"User Id","field":"userId"},
+          {"headerText": "Status", "field": "status"},
+          {"headerText": "Account", "field": "accountNumber"},
+          {"headerText": "Created", "field": "createdAt"},
+      {"headerText": "Action", "template": "execActionTemplate"}
+    ]'>
+
+    <template slot="execActionTemplate" data-oj-as="row">
+        <oj-button chroming="callToAction" on-oj-action="[[openCreateDialog]]">
+            Create Account
+        </oj-button>
+    </template>
+
+</oj-table>
+
+
+
+<!-- Dialog for verifying before creation -->
+<oj-dialog id="createAccountDialog" dialog-title="Verify User Details" cancel-behavior="icon" style="max-width:600px">
+
+    <div class="oj-dialog-body oj-sm-padding-4x">
+        <oj-bind-for-each data="[[userDataProvider]]">
+            <template>
+                <div class="oj-flex oj-sm-flex-direction-column oj-sm-align-items-center">
+
+                    <oj-avatar size="lg" shape="circle" initials="[[$current.data.firstName.charAt(0)]]">
+                    </oj-avatar>
+
+                    <h3 class="oj-sm-margin-2x-top">
+                        <span data-bind="text: $current.data.firstName + ' ' + $current.data.lastName"></span>
+                    </h3>
+
+                    <div class="oj-sm-margin-3x-top oj-text-align-left" style="width:100%">
+                        <p><b>ID:</b> <span data-bind="text: $current.data.id"></span></p>
+                        <p><b>Username:</b> <span data-bind="text: $current.data.username"></span></p>
+                        <p><b>Email:</b> <span data-bind="text: $current.data.email"></span></p>
+                        <p><b>Phone:</b> <span data-bind="text: $current.data.phoneNumber"></span></p>
+                        <p><b>Role:</b> <span data-bind="text: $current.data.role"></span></p>
+                    </div>
+                </div>
+            </template>
+        </oj-bind-for-each>
+    </div>
+
+    <div class="oj-dialog-footer">
+        <oj-button on-oj-action="[[confirmCreateAccount]]" chroming="callToAction">
+            Verify & Create
+        </oj-button>
+        <oj-button on-oj-action="[[closeCreateDialog]]">
+            Cancel
+        </oj-button>
+    </div>
+</oj-dialog>
+
+
+
+</oj-bind-if>
+
+<!-- MANAGER VIEW -->
+<oj-bind-if test="[[userRole === 'manager']]">
+    <h3>Pending Approvals</h3>
+    <oj-table data="[[accountRequestsProvider]]" columns='[
+      {"headerText": "User ID", "field": "userId"},
+      {"headerText": "Account ID", "field": "accountId"},
+      {"headerText": "Account Type", "field": "accountType"},
+      {"headerText": "Action", "template": "mgrActionTemplate"}
+    ]'>
+    <template slot="mgrActionTemplate" data-oj-as="row">
+        <oj-button on-oj-action="[[approveAccountOpenDialog]]" chroming="callToAction">
+            Approve
+        </oj-button>
+    </template>
+
+</oj-table>
+
+   
+
+
+
+    <!-- Confirmation Dialog -->
+    <oj-dialog id="confirmApproveDialog" dialog-title="Confirm Approval" modality="modal">
+        <div slot="body">
+            <p>Are you sure you want to approve this account?</p>
+        </div>
+        <div slot="footer">
+            <oj-button id="cancelBtn" on-oj-action="[[closeConfirmDialog]]">No</oj-button>
+            <oj-button id="okBtn" chroming="callToAction" on-oj-action="[[confirmApproveAccount]]">Yes</oj-button>
+        </div>
+    </oj-dialog>
+
+
+    <!-- ✅ Success Dialog -->
+    <oj-dialog id="successDialog" dialog-title="Success" modality="modeless">
+        <div slot="body">
+            <p>✅ Account approved successfully!</p>
+        </div>
+        <div slot="footer">
+            <oj-button id="okSuccessBtn" chroming="callToAction" on-oj-action="[[closeSuccessDialog]]">OK</oj-button>
+        </div>
+    </oj-dialog>
+
+</oj-bind-if>
+
+
+
+

@@ -33,7 +33,7 @@ public class Ledger {
 
     /** Which account this entry belongs to */
 
-    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL, optional = false)
     @JoinColumn(name = "account_id", nullable = false)
     private Account account;
 

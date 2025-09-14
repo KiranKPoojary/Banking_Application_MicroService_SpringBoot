@@ -15,36 +15,35 @@ define([
     self.requestDataProvider = ko.observable();
     self.hasRequests = ko.observable(false);
     self.selectedAccountType = ko.observable();
+    self.requests=ko.observable([]);
+    self.hasAvailableAccountTypes = ko.observable(false);
 
     // Static options
-  const accountType = [
-    { value: "SAVINGS", label: "Savings" },
-    { value: "CURRENT", label: "Current" },
-  ];
+    const accountType = [
+      { value: "SAVINGS", label: "Savings" },
+      { value: "CURRENT", label: "Current" },
+    ];
 
+    this.accountTypeOptions = new ArrayDataProvider(accountType, {
+      keyAttributes: "value",
+      textFilterAttributes: ["label"],
+    });
 
-  this.accountTypeOptions = new ArrayDataProvider(accountType, {
-    keyAttributes: "value",
-    textFilterAttributes: ["label"],
-  });
+    self.reqTrainSteps = ko.observableArray([
+      { id: "REQUESTED", label: "Requested" },
+      { id: "CREATED", label: "Created" },
+      { id: "APPROVED", label: "Approved" },
+    ]);
 
-  self.reqTrainSteps = ko.observableArray([
-    { id: "REQUESTED", label: "Requested" },
-    { id: "CREATED", label: "Created" },
-    { id: "APPROVED", label: "Approved" },
-    { id: "REJECTED", label: "Rejected" }
-  ]);
+    self.getTrainStepId = function (event, context) {
+      const status = context.item.data.status;
+      console.log("Getting train step for status:", status);
+      const foundStep = self
+        .reqTrainSteps()
+        .find((step) => step.id.toLowerCase() === status.toLowerCase());
+      return foundStep ? foundStep.id : null;
+    };
 
-  self.getTrainStepId = function (event,context) {
-    const status = context.item.data.status;
-    console.log("Getting train step for status:", status);
-    const foundStep = self
-      .reqTrainSteps()
-      .find((step) => step.id.toLowerCase() === status.toLowerCase());
-    return foundStep ? foundStep.id : null;
-  };
-
-  
     // Auth info
     const userId = localStorage.getItem("Id");
     const token = localStorage.getItem("jwtToken");
@@ -54,7 +53,7 @@ define([
     const requestUrl = `http://localhost:8085/account-service/api/v0/account-request`;
 
     // Fetch accounts
-    self.loadAccounts=async function () {
+    self.loadAccounts = async function () {
       fetch(accountUrl, {
         method: "GET",
         headers: {
@@ -78,12 +77,10 @@ define([
           }
         })
         .catch((error) => console.error("Account fetch error:", error));
-    }
-
-    
+    };
 
     // Fetch account requests
-    self.loadRequests=async function () {
+    self.loadRequests = async function () {
       console.log("Loading account requests...");
       fetch(requestUrl, {
         method: "GET",
@@ -98,6 +95,7 @@ define([
         })
         .then((data) => {
           if (Array.isArray(data) && data.length > 0) {
+            self.requests((data));
             self.hasRequests(true);
             self.requestDataProvider(
               new ArrayDataProvider(data, { keyAttributes: "id" })
@@ -109,6 +107,30 @@ define([
         })
         .catch((error) => console.error("Request fetch error:", error));
     };
+
+    // ✅ Computed filtered options
+    self.filteredAccountTypeOptions = ko.computed(function () {
+      let requestedTypes = self
+        .requests()
+        .map((req) => req.accountType);
+
+      let allOptions = [
+        { value: "SAVINGS", label: "Savings" },
+        { value: "CURRENT", label: "Current" },
+      ];
+
+      let filtered = allOptions.filter(
+        (opt) => !requestedTypes.includes(opt.value)
+      );
+      self.hasAvailableAccountTypes(filtered.length > 0);
+
+
+      return new ArrayDataProvider(filtered, { keyAttributes: "value" });
+    });
+
+ 
+
+
 
     // Create new account request
     self.createAccountRequest = function () {
@@ -146,11 +168,9 @@ define([
     };
 
     // Initial load
-    
-      self.loadAccounts();
-      self.loadRequests();
-    
 
+    self.loadAccounts();
+    self.loadRequests();
   }
 
   return ManageAccountsUserViewModel;
